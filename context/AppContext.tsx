@@ -58,3 +58,8 @@ export interface AppContextType {
   updateUser: (user: User) => void;
   viewCommunity: (id: string) => void;
   viewEvent: (id: string) => void;
+  toggleCommunityMembership: (communityId: string) => void;
+  toggleEventSignup: (eventId: string) => void;
+}
+
+export const AppContext = createContext<AppContextType | null>(null);
