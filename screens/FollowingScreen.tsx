@@ -187,7 +187,7 @@ export default function FollowingScreen() {
     return (
       <Surface style={styles.emptyState} elevation={0}>
         <Text variant="bodyMedium" style={styles.emptyStateText}>
-          请登录以查看关注动态。
+          Please log in to view your following feed.
         </Text>
       </Surface>
     );
@@ -223,10 +223,10 @@ export default function FollowingScreen() {
         {followedPosts.length === 0 && joinedEvents.length === 0 ? (
           <View style={styles.feedEmpty}>
             <Text variant="titleSmall" style={styles.feedEmptyTitle}>
-              动态为空
+              Nothing to see yet
             </Text>
             <Text variant="bodyMedium" style={styles.feedEmptySubtitle}>
-              前往 Discover 页面加入一些社群，开始你的校园旅程吧。
+              Join a few communities on the Discover page to start building your feed.
             </Text>
           </View>
         ) : null}
