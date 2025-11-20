@@ -16,6 +16,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { Community, AppContext, Post } from "../context/AppContext";
+import { MOCK_POSTS } from "../data/mockData";
 
 type PostCardProps = {
   post: Post;
@@ -118,13 +119,16 @@ export default function CommunityDetailScreen({
   onBack,
 }: CommunityDetailScreenProps) {
   const context = useContext(AppContext);
+  const theme = useTheme();
 
   if (!context) {
     return null;
   }
 
-  const { currentUser, toggleCommunityMembership, posts } = context;
-  const communityPosts = posts.filter((p) => p.communityId === community.id);
+  const { currentUser, toggleCommunityMembership } = context;
+  const communityPosts = MOCK_POSTS.filter(
+    (p) => p.communityId === community.id
+  );
 
   const isMember = currentUser?.joinedCommunityIds.includes(community.id);
 
@@ -184,7 +188,7 @@ export default function CommunityDetailScreen({
           <Card mode="outlined" style={styles.emptyCard}>
             <Card.Content>
               <Text variant="bodyMedium" style={styles.emptyText}>
-                No posts yet. Be the first to share something!
+                暂无帖子，成为首位分享者吧！
               </Text>
             </Card.Content>
           </Card>
