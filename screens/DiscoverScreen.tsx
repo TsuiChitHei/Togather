@@ -11,7 +11,6 @@ import {
   Card,
   Button,
   Searchbar,
-  useTheme,
   Surface,
 } from "react-native-paper";
 import { AppContext, Community, Event } from "../context/AppContext";
@@ -115,7 +114,6 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const context = useContext(AppContext);
-  const theme = useTheme();
 
   if (!context) {
     return (
@@ -144,9 +142,11 @@ export default function DiscoverScreen() {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      <Text variant="headlineLarge" style={styles.title}>
-        Discover
-      </Text>
+      <View style={styles.headerRow}>
+        <Text variant="headlineLarge" style={styles.title}>
+          Discover
+        </Text>
+      </View>
 
       <View style={styles.searchWrapper}>
         <Searchbar
@@ -215,10 +215,15 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 32,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
   title: {
     color: "#111827",
     fontWeight: "700",
-    marginBottom: 16,
   },
   searchWrapper: {
     marginBottom: 24,
