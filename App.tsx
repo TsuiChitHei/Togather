@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import {
   AppContext,
@@ -6,8 +6,15 @@ import {
   Community,
   Event,
   AppContextType,
+  Post,
+  CreateEventInput,
 } from "./context/AppContext";
-import { MOCK_USERS, MOCK_COMMUNITIES, MOCK_EVENTS } from "./data/mockData";
+import {
+  MOCK_USERS,
+  MOCK_COMMUNITIES,
+  MOCK_EVENTS,
+  MOCK_POSTS,
+} from "./data/mockData";
 
 import ProfileSetupScreen from "./screens/ProfileSetupScreen";
 import DiscoverScreen from "./screens/DiscoverScreen";
@@ -18,9 +25,15 @@ import CommunityDetailScreen from "./screens/CommunityDetailScreen";
 import EventDetailScreen from "./screens/EventDetailScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
+import CreateEventScreen from "./screens/CreateEventScreen";
 import { Screen, AuthScreenType } from "./types";
 
-import { Provider as PaperProvider, Text as PaperText, Button } from "react-native-paper";
+import {
+  Provider as PaperProvider,
+  Text as PaperText,
+  Button,
+  FAB,
+} from "react-native-paper";
 import { theme } from "./src/theme";
 
 export default function App() {
@@ -40,7 +53,9 @@ export default function App() {
     MOCK_COMMUNITIES
   );
   const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
+  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [pendingUser, setPendingUser] = useState<Partial<User> | null>(null);
+  const [isCreatingEvent, setIsCreatingEvent] = useState<boolean>(false);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
@@ -49,6 +64,9 @@ export default function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setViewingCommunity(null);
+    setViewingEvent(null);
+    setIsCreatingEvent(false);
     setAuthScreen(AuthScreenType.Welcome);
   };
 
@@ -117,23 +135,90 @@ export default function App() {
     );
   };
 
+  const handleCreateEvent = useCallback(
+    (input: CreateEventInput): Event | null => {
+      if (!currentUser) {
+        return null;
+      }
+
+      const eventId = `event-${Date.now()}`;
+      const imageUrl =
+        input.imageUrl && input.imageUrl.trim().length > 0
+          ? input.imageUrl.trim()
+          : `https://picsum.photos/seed/${eventId}/200/200`;
+
+      const newEvent: Event = {
+        id: eventId,
+        name: input.name.trim(),
+        time: input.time.trim(),
+        location: input.location.trim(),
+        communityId: input.communityId,
+        description: input.description.trim(),
+        imageUrl,
+        attendees: [currentUser.id],
+      };
+
+      const timestamp = "Just now";
+      const updatedUser: User = {
+        ...currentUser,
+        signedUpEventIds: currentUser.signedUpEventIds.includes(eventId)
+          ? currentUser.signedUpEventIds
+          : [...currentUser.signedUpEventIds, eventId],
+      };
+
+      setEvents((prev) => [newEvent, ...prev]);
+      setPosts((prev) => [
+        {
+          id: `post-${Date.now()}`,
+          type: "event",
+          authorId: currentUser.id,
+          communityId: input.communityId,
+          timestamp,
+          eventId,
+        },
+        ...prev,
+      ]);
+      setCurrentUser(updatedUser);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+      );
+
+      return newEvent;
+    },
+    [currentUser]
+  );
+
   const appContextValue: AppContextType = useMemo(
     () => ({
       currentUser,
       users,
       communities,
       events,
+      posts,
       updateUser,
       toggleCommunityMembership,
       toggleEventSignup,
+      createEvent: handleCreateEvent,
       viewCommunity: (id: string) => {
         setViewingEvent(null);
-        setViewingCommunity(communities.find((c) => c.id === id) || null);
+        setIsCreatingEvent(false);
+        setViewingCommunity(
+          communities.find((c) => c.id === id) || null
+        );
       },
-      viewEvent: (id: string) =>
-        setViewingEvent(events.find((e) => e.id === id) || null),
+      viewEvent: (id: string) => {
+        setIsCreatingEvent(false);
+        setViewingEvent(events.find((e) => e.id === id) || null);
+      },
     }),
-    [currentUser, users, communities, events]
+    [
+      currentUser,
+      users,
+      communities,
+      events,
+      posts,
+      handleCreateEvent,
+    ]
   );
 
   const renderAuthContent = () => {
@@ -173,7 +258,7 @@ export default function App() {
           <SignUpScreen
             onSignUp={(email, password) => {
               if (users.some((u) => u.email === email)) {
-                alert("User with this email already exists!");
+                alert("A user with this email already exists.");
                 return;
               }
               const partialUser = {
@@ -192,10 +277,10 @@ export default function App() {
         return (
           <View style={styles.welcomeContainer}>
             <PaperText variant="headlineMedium" style={styles.welcomeTitle}>
-              欢迎来到 Togather
+              Welcome to Togather
             </PaperText>
             <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
-              探索校园社区，结识志趣相投的伙伴。
+              Explore campus communities and connect with people who share your interests.
             </PaperText>
             <Button
               mode="contained"
@@ -203,14 +288,14 @@ export default function App() {
               style={styles.welcomeButton}
               contentStyle={styles.welcomeButtonContent}
             >
-              登录
+              Log In
             </Button>
             <Button
               mode="outlined"
               onPress={() => setAuthScreen(AuthScreenType.SignUp)}
               contentStyle={styles.welcomeButtonContent}
             >
-              注册
+              Sign Up
             </Button>
           </View>
         );
@@ -218,6 +303,25 @@ export default function App() {
   };
 
   const renderContent = () => {
+    if (isCreatingEvent) {
+      return (
+        <CreateEventScreen
+          onCancel={() => setIsCreatingEvent(false)}
+          onEventCreated={(event) => {
+            setIsCreatingEvent(false);
+            setViewingCommunity(null);
+            setViewingEvent(event);
+          }}
+          onNavigateToDiscover={() => {
+            setIsCreatingEvent(false);
+            setViewingEvent(null);
+            setViewingCommunity(null);
+            setActiveScreen(Screen.Discover);
+          }}
+        />
+      );
+    }
+
     if (viewingEvent) {
       return (
         <EventDetailScreen
@@ -247,6 +351,13 @@ export default function App() {
     }
   };
 
+  const showCreateFab =
+    !!currentUser &&
+    !isCreatingEvent &&
+    !viewingCommunity &&
+    !viewingEvent &&
+    activeScreen === Screen.Discover;
+
   return (
     <PaperProvider theme={theme}>
       <AppContext.Provider value={appContextValue}>
@@ -256,12 +367,22 @@ export default function App() {
               renderAuthContent()
             ) : (
               <>
-                <ScrollView
-                  style={styles.scrollView}
-                  contentContainerStyle={styles.scrollContent}
-                >
-                  {renderContent()}
-                </ScrollView>
+                <View style={styles.contentWrapper}>
+                  <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                  >
+                    {renderContent()}
+                  </ScrollView>
+                  {showCreateFab && (
+                    <FAB
+                      icon="plus"
+                      style={styles.floatingActionButton}
+                      size="medium"
+                      onPress={() => setIsCreatingEvent(true)}
+                    />
+                  )}
+                </View>
                 <BottomNav
                   activeScreen={activeScreen}
                   setActiveScreen={setActiveScreen}
@@ -278,18 +399,27 @@ export default function App() {
 const styles = StyleSheet.create({
   appBackground: {
     flex: 1,
-    backgroundColor: "#1F2937", 
+    backgroundColor: "#1F2937",
   },
   appContainer: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+  },
+  contentWrapper: {
+    flex: 1,
+    position: "relative",
   },
   scrollView: {
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
   scrollContent: {
-    paddingBottom: 64,
+    paddingBottom: 96,
+  },
+  floatingActionButton: {
+    position: "absolute",
+    right: 24,
+    bottom: 96,
   },
   welcomeContainer: {
     flex: 1,
