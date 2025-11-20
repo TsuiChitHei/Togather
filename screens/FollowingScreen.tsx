@@ -9,7 +9,6 @@ import {
   useTheme,
 } from "react-native-paper";
 import { AppContext, Post } from "../context/AppContext";
-import { MOCK_POSTS } from "../data/mockData";
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const context = useContext(AppContext);
@@ -42,7 +41,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
           </View>
 
           <Text variant="bodyMedium" style={styles.eventIntro}>
-            发布了一个新活动！
+            posted a new event!
           </Text>
 
           <TouchableRipple
@@ -104,14 +103,14 @@ export default function FollowingScreen() {
     return (
       <Surface style={styles.emptyState} elevation={0}>
         <Text variant="bodyMedium" style={styles.emptyStateText}>
-          请登录以查看关注动态。
+          Please log in to view your following feed.
         </Text>
       </Surface>
     );
   }
 
-  const { currentUser } = context;
-  const followedPosts = MOCK_POSTS.filter((post) =>
+  const { currentUser, posts } = context;
+  const followedPosts = posts.filter((post) =>
     currentUser.joinedCommunityIds.includes(post.communityId)
   );
 
@@ -129,10 +128,10 @@ export default function FollowingScreen() {
         ) : (
           <View style={styles.feedEmpty}>
             <Text variant="titleSmall" style={styles.feedEmptyTitle}>
-              动态为空
+              Nothing to see yet
             </Text>
             <Text variant="bodyMedium" style={styles.feedEmptySubtitle}>
-              前往 Discover 页面加入一些社群，开始你的校园旅程吧。
+              Join a few communities on the Discover page to start building your feed.
             </Text>
           </View>
         )}
