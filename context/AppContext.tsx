@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext } from "react";
 
 export interface User {
   id: string;
@@ -30,13 +30,13 @@ export interface Community {
 }
 
 export interface Post {
-    id: string;
-    type: 'text' | 'event';
-    authorId: string;
-    communityId: string;
-    timestamp: string;
-    content?: string;
-    eventId?: string;
+  id: string;
+  type: "text" | "event";
+  authorId: string;
+  communityId: string;
+  timestamp: string;
+  content?: string;
+  eventId?: string;
 }
 
 export interface Event {
@@ -50,16 +50,27 @@ export interface Event {
   attendees: string[]; // array of user ids
 }
 
+export interface CreateEventInput {
+  name: string;
+  time: string;
+  location: string;
+  description: string;
+  communityId: string;
+  imageUrl?: string;
+}
+
 export interface AppContextType {
   currentUser: User | null;
   users: User[];
   communities: Community[];
   events: Event[];
+  posts: Post[];
   updateUser: (user: User) => void;
   viewCommunity: (id: string) => void;
   viewEvent: (id: string) => void;
   toggleCommunityMembership: (communityId: string) => void;
   toggleEventSignup: (eventId: string) => void;
+  createEvent: (input: CreateEventInput) => Event | null;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
