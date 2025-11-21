@@ -1,0 +1,22 @@
+import { Community } from "../context/AppContext";
+
+const API_URL = "http://172.20.6.41:8000";
+
+export const getIndividualCommunityFromDatabase = async (
+  communityId: string
+) => {
+  const response = await fetch(`${API_URL}/communities/${communityId}`);
+  const data = await response.json();
+  return data as Community;
+};
+
+export const updateCommunityInDatabase = async (newCommunity: Community) => {
+  const response = await fetch(`${API_URL}/communities/${newCommunity.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newCommunity),
+  });
+  return response.json();
+};
