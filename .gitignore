@@ -39,3 +39,21 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+
+firebaseAdminConfig.json
+config/firebaseAdminConfig.json
+   
+firebaseAdminConfig.json
+backend/firebaseAdminConfig.json
+**/firebaseAdminConfig.json
+
+.env
