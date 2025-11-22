@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   View,
@@ -30,6 +31,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
 import { AppContext, CreateEventInput, Event } from "../context/AppContext";
+import { geocodeAddress } from "../services/geocodingService";
 
 interface CreateEventScreenProps {
   onCancel: () => void;
@@ -62,6 +64,11 @@ export default function CreateEventScreen({
   const [pickedImageUri, setPickedImageUri] = useState<string | null>(null);
   const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
+  const [latitude, setLatitude] = useState<string>("");
+  const [longitude, setLongitude] = useState<string>("");
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState<string | null>(null);
+
   if (!context) {
     return null;
   }
@@ -92,6 +99,9 @@ export default function CreateEventScreen({
     setEventDate(null);
     setEventTime(null);
     setPickedImageUri(null);
+    setLatitude("");
+    setLongitude("");
+    setGeocodeError(null);
 
     if (selectableCommunities.length > 0) {
       setSelectedCommunity(selectableCommunities[0].id);
@@ -215,6 +225,27 @@ export default function CreateEventScreen({
     }
   };
 
+  const handleGeocode = async () => {
+    if (!location.trim()) {
+      Alert.alert("Notice", "Please enter an address before fetching coordinates.");
+      return;
+    }
+    try {
+      setIsGeocoding(true);
+      const result = await geocodeAddress(location.trim());
+      setLatitude(result.latitude.toString());
+      setLongitude(result.longitude.toString());
+      setLocation(result.placeName);
+      setGeocodeError(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Geocoding failed. Please try again.";
+      setGeocodeError(message);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (!currentUser) {
       Alert.alert("Notice", "Please log in before creating an event.");
@@ -222,6 +253,10 @@ export default function CreateEventScreen({
     }
     if (!name.trim() || !location.trim() || !description.trim()) {
       Alert.alert("Notice", "Please complete all required fields.");
+      return;
+    }
+    if (!latitude || !longitude) {
+      Alert.alert("Notice", "Please fetch coordinates for the event location.");
       return;
     }
     if (!selectedCommunity) {
@@ -239,10 +274,20 @@ export default function CreateEventScreen({
       return;
     }
 
+    const latValue = Number(latitude);
+    const lngValue = Number(longitude);
+
+    if (!Number.isFinite(latValue) || !Number.isFinite(lngValue)) {
+      Alert.alert("Notice", "Invalid coordinates. Please fetch them again.");
+      return;
+    }
+
     const payload: CreateEventInput = {
       name: name.trim(),
       time: scheduleString,
       location: location.trim(),
+      latitude: latValue,
+      longitude: lngValue,
       description: description.trim(),
       communityId: selectedCommunity,
       imageUrl:
@@ -389,6 +434,25 @@ export default function CreateEventScreen({
             placeholder="e.g. Student Union Auditorium"
             style={styles.input}
           />
+          <Button
+            mode="outlined"
+            icon="map-search"
+            onPress={handleGeocode}
+            loading={isGeocoding}
+            disabled={isGeocoding}
+            style={styles.geocodeButton}
+            contentStyle={styles.inlinePickerButtonContent}
+          >
+            Fetch coordinates
+          </Button>
+          {latitude && longitude ? (
+            <Text style={styles.geoResult}>
+              Coordinates: {latitude}, {longitude}
+            </Text>
+          ) : null}
+          {geocodeError ? (
+            <Text style={styles.geoError}>{geocodeError}</Text>
+          ) : null}
           <View style={styles.inlinePickerRow}>
             <Button
               mode="outlined"
@@ -573,6 +637,9 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "#FFFFFF",
   },
+  geocodeButton: {
+    borderRadius: 12,
+  },
   inlinePickerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -585,6 +652,14 @@ const styles = StyleSheet.create({
   },
   inlinePickerButtonContent: {
     height: 48,
+  },
+  geoResult: {
+    fontSize: 14,
+    color: "#2563EB",
+  },
+  geoError: {
+    fontSize: 14,
+    color: "#DC2626",
   },
   uploadGroup: {
     gap: 12,
