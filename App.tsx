@@ -152,6 +152,8 @@ export default function App() {
         name: input.name.trim(),
         time: input.time.trim(),
         location: input.location.trim(),
+        latitude: input.latitude,
+        longitude: input.longitude,
         communityId: input.communityId,
         description: input.description.trim(),
         imageUrl,
@@ -202,23 +204,14 @@ export default function App() {
       viewCommunity: (id: string) => {
         setViewingEvent(null);
         setIsCreatingEvent(false);
-        setViewingCommunity(
-          communities.find((c) => c.id === id) || null
-        );
+        setViewingCommunity(communities.find((c) => c.id === id) || null);
       },
       viewEvent: (id: string) => {
         setIsCreatingEvent(false);
         setViewingEvent(events.find((e) => e.id === id) || null);
       },
     }),
-    [
-      currentUser,
-      users,
-      communities,
-      events,
-      posts,
-      handleCreateEvent,
-    ]
+    [currentUser, users, communities, events, posts, handleCreateEvent]
   );
 
   const renderAuthContent = () => {
