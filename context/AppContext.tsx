@@ -17,6 +17,7 @@ export interface User {
   };
   joinedCommunityIds: string[];
   signedUpEventIds: string[];
+  postIds: string[];
   avatarUrl: string;
 }
 
@@ -27,6 +28,7 @@ export interface Community {
   memberCount: number;
   imageUrl: string;
   members: string[]; // array of user ids
+  postIds: string[];
 }
 
 export interface Post {
@@ -44,6 +46,8 @@ export interface Event {
   name: string;
   time: string;
   location: string;
+  latitude: number;
+  longitude: number;
   communityId: string;
   description: string;
   imageUrl: string;
@@ -54,6 +58,8 @@ export interface CreateEventInput {
   name: string;
   time: string;
   location: string;
+  latitude: number;
+  longitude: number;
   description: string;
   communityId: string;
   imageUrl?: string;
