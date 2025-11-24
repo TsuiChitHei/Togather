@@ -35,6 +35,11 @@ import {
   FAB,
 } from "react-native-paper";
 import { theme } from "./src/theme";
+import { updateUserInDatabase } from "./api/user";
+import {
+  getIndividualCommunityFromDatabase,
+  updateCommunityInDatabase,
+} from "./api/community";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -49,9 +54,7 @@ export default function App() {
   const [viewingEvent, setViewingEvent] = useState<Event | null>(null);
 
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
-  const [communities, setCommunities] = useState<Community[]>(
-    MOCK_COMMUNITIES
-  );
+  const [communities, setCommunities] = useState<Community[]>(MOCK_COMMUNITIES);
   const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [pendingUser, setPendingUser] = useState<Partial<User> | null>(null);
@@ -79,7 +82,7 @@ export default function App() {
     }
   };
 
-  const toggleCommunityMembership = (communityId: string) => {
+  const toggleCommunityMembership = async (communityId: string) => {
     if (!currentUser) return;
     const isMember = currentUser.joinedCommunityIds.includes(communityId);
 
@@ -93,6 +96,19 @@ export default function App() {
     setUsers((prev) =>
       prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
     );
+
+    await updateUserInDatabase(updatedUser);
+    const oldCommunity = await getIndividualCommunityFromDatabase(communityId);
+    const updatedCommunity = {
+      ...oldCommunity,
+      memberCount: isMember
+        ? oldCommunity.memberCount - 1
+        : oldCommunity.memberCount + 1,
+      members: isMember
+        ? oldCommunity.members.filter((id) => id !== currentUser.id)
+        : [...oldCommunity.members, currentUser.id],
+    };
+    await updateCommunityInDatabase(updatedCommunity);
 
     setCommunities((prev) =>
       prev.map((c) =>
@@ -175,6 +191,7 @@ export default function App() {
           communityId: input.communityId,
           timestamp,
           eventId,
+          content: "",
         },
         ...prev,
       ]);
@@ -199,26 +216,23 @@ export default function App() {
       toggleCommunityMembership,
       toggleEventSignup,
       createEvent: handleCreateEvent,
-      viewCommunity: (id: string) => {
+      viewCommunity: async (id: string) => {
         setViewingEvent(null);
         setIsCreatingEvent(false);
-        setViewingCommunity(
-          communities.find((c) => c.id === id) || null
-        );
+        // setViewingCommunity(communities.find((c) => c.id === id) || null);
+        try {
+          const community = await getIndividualCommunityFromDatabase(id);
+          setViewingCommunity(community);
+        } catch (error) {
+          console.error("Error fetching community:", error);
+        }
       },
       viewEvent: (id: string) => {
         setIsCreatingEvent(false);
         setViewingEvent(events.find((e) => e.id === id) || null);
       },
     }),
-    [
-      currentUser,
-      users,
-      communities,
-      events,
-      posts,
-      handleCreateEvent,
-    ]
+    [currentUser, users, communities, events, posts, handleCreateEvent]
   );
 
   const renderAuthContent = () => {
@@ -280,7 +294,8 @@ export default function App() {
               Welcome to Togather
             </PaperText>
             <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
-              Explore campus communities and connect with people who share your interests.
+              Explore campus communities and connect with people who share your
+              interests.
             </PaperText>
             <Button
               mode="contained"

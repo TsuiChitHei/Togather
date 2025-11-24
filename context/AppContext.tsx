@@ -17,6 +17,7 @@ export interface User {
   };
   joinedCommunityIds: string[];
   signedUpEventIds: string[];
+  postIds: string[];
   avatarUrl: string;
 }
 
@@ -27,6 +28,7 @@ export interface Community {
   memberCount: number;
   imageUrl: string;
   members: string[]; // array of user ids
+  postIds: string[]; // array of post ids
 }
 
 export interface Post {
@@ -35,7 +37,7 @@ export interface Post {
   authorId: string;
   communityId: string;
   timestamp: string;
-  content?: string;
+  content: string; // Empty string for event type posts
   eventId?: string;
 }
 
