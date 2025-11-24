@@ -13,12 +13,15 @@ app = FastAPI()
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 
-firebase_config_json = os.getenv("FIREBASE_ADMIN_CONFIG_JSON")
-cred = credentials.Certificate(json.loads(firebase_config_json))
+# firebase_config_json = os.getenv("FIREBASE_ADMIN_CONFIG_JSON")
+# if firebase_config_json:
+#     cred = credentials.Certificate(json.loads(firebase_config_json))
+# else:
+cred = credentials.Certificate("firebaseAdminConfig.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-
+print('helloo')
 # Mock data dictionaries
 MOCK_USERS = [
     {
@@ -280,4 +283,28 @@ def update_community(community_id: str, newCommunity: Community):
     community_ref = db.collection("communities").document(community_snapshot.id)
     community_ref.update(newCommunity.model_dump())
     return {"message": "Community updated successfully"}
+
+@app.get("/users")
+def get_users():
+    users_ref = db.collection("users")
+    docs = users_ref.stream()
+    return [doc.to_dict() for doc in docs]
+
+@app.get("/communities")
+def get_communities():
+    communities_ref = db.collection("communities")
+    docs = communities_ref.stream()
+    return [doc.to_dict() for doc in docs]
+
+@app.get("/events")
+def get_events():
+    events_ref = db.collection("events")
+    docs = events_ref.stream()
+    return [doc.to_dict() for doc in docs]
+
+@app.get("/posts")
+def get_posts():
+    posts_ref = db.collection("posts")
+    docs = posts_ref.stream()
+    return [doc.to_dict() for doc in docs]
 
