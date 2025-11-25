@@ -3,32 +3,32 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import json
 
-import firebase_admin
-from firebase_admin import firestore, credentials
+# import firebase_admin
+# from firebase_admin import firestore, credentials
 
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+# cred = credentials.Certificate("serviceAccountKey.json")
+# firebase_admin.initialize_app(cred)
 
-db = firestore.client()
+# db = firestore.client()
 
 # --- Function to get a collection as a list of dictionaries ---
-def get_collection_as_dict(collection_ref):
-    """Retrieves all documents in a collection and returns them as a list of dictionaries."""
-    docs = collection_ref.stream()
-    data = []
-    for doc in docs:
-        doc_data = doc.to_dict()
-        if doc_data:
-            doc_data['id'] = doc.id
-            data.append(doc_data)
-    return data
+# def get_collection_as_dict(collection_ref):
+#     """Retrieves all documents in a collection and returns them as a list of dictionaries."""
+#     docs = collection_ref.stream()
+#     data = []
+#     for doc in docs:
+#         doc_data = doc.to_dict()
+#         if doc_data:
+#             doc_data['id'] = doc.id
+#             data.append(doc_data)
+#     return data
 
-# --- Fetch data ---
-collection_name = 'users' # Replace with your collection name
-collection_ref = db.collection(collection_name)
-all_documents = get_collection_as_dict(collection_ref)
+# # --- Fetch data ---
+# collection_name = 'users' # Replace with your collection name
+# collection_ref = db.collection(collection_name)
+# all_documents = get_collection_as_dict(collection_ref)
 
-users_data = {"users": all_documents}
+# users_data = {"users": all_documents}
 
 # --- Convert to JSON format --- (optional)
 # users_data = json.dumps(all_documents, indent=4, ensure_ascii=False)
@@ -126,7 +126,8 @@ def find_top_similar_users(users_data, target_user_id, top_n=1, interest_attribu
                 "interests": user.get(interest_attribute, [])
             })
         
-        return json.dumps(results, indent=4, ensure_ascii=False)
+        # return json.dumps(results, indent=4, ensure_ascii=False)
+        return results
     
     except Exception as e:
         return json.dumps({"error": f"An error occurred: {str(e)}"}, indent=4)

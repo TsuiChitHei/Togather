@@ -17,6 +17,7 @@ import {
 } from "react-native-paper";
 import { Event, AppContext, User } from "../context/AppContext";
 import { generateMatchDescription } from "../services/geminiService";
+import { findSimilarUsers } from "../api/user";
 
 const MatchmakingCard = ({ event }: { event: Event }) => {
   const context = useContext(AppContext);
@@ -39,8 +40,10 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
       return;
     }
 
-    const matchId =
-      otherAttendees[Math.floor(Math.random() * otherAttendees.length)];
+    // const matchId =
+    //   otherAttendees[Math.floor(Math.random() * otherAttendees.length)];
+    const matches = await findSimilarUsers(context.currentUser.id, event.id);
+    const matchId = matches && matches.length > 0 ? matches[0]["id"] : null;
     const matchUser = context.users.find((u) => u.id === matchId);
 
     if (matchUser) {
@@ -80,7 +83,10 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
   }
 
   return (
-    <Surface style={[styles.matchCard, styles.matchCardHighlight]} elevation={2}>
+    <Surface
+      style={[styles.matchCard, styles.matchCardHighlight]}
+      elevation={2}
+    >
       <Text variant="titleMedium" style={styles.matchTitle}>
         Potential matching partners
       </Text>

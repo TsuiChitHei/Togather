@@ -1,6 +1,6 @@
 import { Event } from "../context/AppContext";
 
-const API_URL = "http://192.168.1.235:8000";
+const API_URL = "http://10.192.230.110:8000";
 
 export const getAllEvents = async () => {
   const response = await fetch(`${API_URL}/events`);

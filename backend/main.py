@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
 from dotenv import load_dotenv
+from nlp import find_top_similar_users
 
 load_dotenv()
 
@@ -21,7 +22,6 @@ cred = credentials.Certificate("firebaseAdminConfig.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-print('helloo')
 # Mock data dictionaries
 MOCK_USERS = [
     {
@@ -308,3 +308,11 @@ def get_posts():
     docs = posts_ref.stream()
     return [doc.to_dict() for doc in docs]
 
+@app.get("/find-similar-users")
+def find_similar_users(request: Request):
+    user_id = request.query_params.get("user_id")
+    event_id = request.query_params.get("event_id")
+    users_ref = db.collection("users").where("signedUpEventIds", "array_contains", event_id)
+    docs = users_ref.stream()
+    users_data = {"users": [doc.to_dict() for doc in docs]}
+    return find_top_similar_users(users_data, user_id)
