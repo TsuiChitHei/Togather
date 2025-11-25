@@ -1,6 +1,6 @@
 import { Community } from "../context/AppContext";
 
-const API_URL = "http://172.20.6.41:8000";
+const API_URL = "http://192.168.1.235:8000";
 
 export const getIndividualCommunityFromDatabase = async (
   communityId: string
@@ -19,4 +19,10 @@ export const updateCommunityInDatabase = async (newCommunity: Community) => {
     body: JSON.stringify(newCommunity),
   });
   return response.json();
+};
+
+export const getAllCommunities = async () => {
+  const response = await fetch(`${API_URL}/communities`);
+  const data = await response.json();
+  return data as Community[];
 };

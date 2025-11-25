@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import {
   AppContext,
@@ -9,12 +9,10 @@ import {
   Post,
   CreateEventInput,
 } from "./context/AppContext";
-import {
-  MOCK_USERS,
-  MOCK_COMMUNITIES,
-  MOCK_EVENTS,
-  MOCK_POSTS,
-} from "./data/mockData";
+import { getAllUsers } from "./api/user";
+import { getAllCommunities } from "./api/community";
+import { getAllEvents } from "./api/event";
+import { getAllPosts } from "./api/post";
 
 import ProfileSetupScreen from "./screens/ProfileSetupScreen";
 import DiscoverScreen from "./screens/DiscoverScreen";
@@ -48,14 +46,33 @@ export default function App() {
   );
   const [viewingEvent, setViewingEvent] = useState<Event | null>(null);
 
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
-  const [communities, setCommunities] = useState<Community[]>(
-    MOCK_COMMUNITIES
-  );
-  const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  const [users, setUsers] = useState<User[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [pendingUser, setPendingUser] = useState<Partial<User> | null>(null);
   const [isCreatingEvent, setIsCreatingEvent] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [fetchedUsers, fetchedCommunities, fetchedEvents, fetchedPosts] =
+          await Promise.all([
+            getAllUsers(),
+            getAllCommunities(),
+            getAllEvents(),
+            getAllPosts(),
+          ]);
+        setUsers(fetchedUsers);
+        setCommunities(fetchedCommunities);
+        setEvents(fetchedEvents);
+        setPosts(fetchedPosts);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
