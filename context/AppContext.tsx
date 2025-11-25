@@ -1,5 +1,10 @@
 import { createContext } from "react";
 
+export type UserCoords = {
+  latitude: number;
+  longitude: number;
+};
+
 export interface User {
   id: string;
   email: string;
@@ -77,6 +82,11 @@ export interface AppContextType {
   toggleCommunityMembership: (communityId: string) => void;
   toggleEventSignup: (eventId: string) => void;
   createEvent: (input: CreateEventInput) => Event | null;
+  userCoords: UserCoords | null;
+  isLocatingUser: boolean;
+  permissionDenied: boolean;
+  refreshUserLocation?: () => Promise<void>;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
+
