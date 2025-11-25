@@ -36,6 +36,9 @@ import {
 } from "react-native-paper";
 import { theme } from "./src/theme";
 
+// 新增：定位 Hook
+import { useUserLocation } from "./src/hooks/useUserLocation";
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Discover);
@@ -56,6 +59,13 @@ export default function App() {
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [pendingUser, setPendingUser] = useState<Partial<User> | null>(null);
   const [isCreatingEvent, setIsCreatingEvent] = useState<boolean>(false);
+
+  // 新增：调用定位 hook
+  const {
+    coords: userCoords,
+    isLoading: isLocatingUser,
+    permissionDenied,
+  } = useUserLocation();
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
@@ -210,8 +220,21 @@ export default function App() {
         setIsCreatingEvent(false);
         setViewingEvent(events.find((e) => e.id === id) || null);
       },
+      userCoords,
+      isLocatingUser,
+      permissionDenied,
     }),
-    [currentUser, users, communities, events, posts, handleCreateEvent]
+    [
+      currentUser,
+      users,
+      communities,
+      events,
+      posts,
+      handleCreateEvent,
+      userCoords,
+      isLocatingUser,
+      permissionDenied,
+    ]
   );
 
   const renderAuthContent = () => {
@@ -440,3 +463,4 @@ const styles = StyleSheet.create({
     height: 48,
   },
 });
+
