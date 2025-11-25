@@ -1,6 +1,6 @@
 import { User } from "../context/AppContext";
 
-const API_URL = "http://172.20.10.5:8000";
+const API_URL = "http://192.168.1.235:8000";
 
 export const updateUserInDatabase = async (updatedUser: User) => {
   const response = await fetch(`${API_URL}/users/${updatedUser.id}`, {
