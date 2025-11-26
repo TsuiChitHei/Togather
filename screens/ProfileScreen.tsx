@@ -92,7 +92,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
   const handleSave = () => {
     if (!formData) return;
     if (!formData.name.trim() || !formData.bio.trim()) {
-      Alert.alert("提示", "请至少填写姓名和简介。");
+      Alert.alert("Prompt", "Please fill in at least your name and a brief introduction.");
       return;
     }
     updateUser({

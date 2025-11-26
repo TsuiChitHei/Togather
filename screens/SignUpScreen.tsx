@@ -23,7 +23,7 @@ export default function SignUpScreen({ onSignUp, onBack }: SignUpScreenProps) {
     if (email.trim() && password.trim()) {
       onSignUp(email.trim(), password);
     } else {
-      Alert.alert("提示", "请输入邮箱和密码。");
+      Alert.alert("Prompt", "Please fill in at least your name and a brief introduction.");
     }
   };
 
