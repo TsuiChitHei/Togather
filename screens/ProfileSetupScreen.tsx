@@ -1,10 +1,5 @@
 import React, { useState, useMemo } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Alert } from "react-native";
 import {
   Text,
   TextInput,
@@ -20,6 +15,7 @@ import { User } from "../context/AppContext";
 interface ProfileSetupScreenProps {
   pendingUser: Partial<User>;
   onProfileCreated: (user: User) => void;
+  onBack: () => void;
 }
 
 const interestOptions = [
@@ -36,6 +32,7 @@ const interestOptions = [
 export default function ProfileSetupScreen({
   pendingUser,
   onProfileCreated,
+  onBack,
 }: ProfileSetupScreenProps) {
   const theme = useTheme();
   const [step, setStep] = useState<1 | 2>(1);
@@ -106,9 +103,7 @@ export default function ProfileSetupScreen({
         <Chip
           key={`${item}`}
           selected={isSelected}
-          onPress={() =>
-            setYear(typeof item === "number" ? item : 6)
-          }
+          onPress={() => setYear(typeof item === "number" ? item : 6)}
           style={[
             styles.yearChip,
             isSelected && { backgroundColor: theme.colors.primary },
@@ -125,8 +120,19 @@ export default function ProfileSetupScreen({
 
   const renderPublicSection = () => (
     <View style={styles.section}>
+      <View style={styles.backRow}>
+        <IconButton
+          icon="arrow-left"
+          size={24}
+          mode="contained-tonal"
+          onPress={onBack}
+          style={styles.backButton}
+          containerColor="rgba(17,24,39,0.08)"
+          iconColor={theme.colors.onSurface}
+        />
+      </View>
       <Text variant="headlineMedium" style={styles.heading}>
-        Let’s talk about you!
+        Let's talk about you!
       </Text>
       <Text variant="titleMedium" style={styles.subheading}>
         Public Section
@@ -387,5 +393,8 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     opacity: 0,
+  },
+  backButton: {
+    alignSelf: "flex-start",
   },
 });

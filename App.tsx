@@ -35,7 +35,7 @@ import {
 import { theme } from "./src/theme";
 
 // 新增：定位 Hook
-import { useUserLocation } from "./src/hooks/useUserLocation";
+import { useUserLocation } from "./src/useUserLocation";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -265,6 +265,10 @@ export default function App() {
             setPendingUser(null);
             setAuthScreen(AuthScreenType.Welcome);
           }}
+          onBack={() => {
+            setPendingUser(null);
+            setAuthScreen(AuthScreenType.SignUp);
+          }}
         />
       );
     }
@@ -325,8 +329,9 @@ export default function App() {
               Log In
             </Button>
             <Button
-              mode="outlined"
+              mode="contained"
               onPress={() => setAuthScreen(AuthScreenType.SignUp)}
+              style={styles.welcomeButton}
               contentStyle={styles.welcomeButtonContent}
             >
               Sign Up

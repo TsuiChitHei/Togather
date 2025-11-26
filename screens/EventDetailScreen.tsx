@@ -71,7 +71,7 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
         <View style={styles.matchLoadingRow}>
           <ActivityIndicator color={theme.colors.primary} />
           <Text variant="bodyMedium" style={styles.matchLoadingText}>
-            正在寻找潜在伙伴...
+            Finding potential matching partners...
           </Text>
         </View>
       </Surface>
