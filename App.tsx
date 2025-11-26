@@ -34,6 +34,9 @@ import {
 } from "react-native-paper";
 import { theme } from "./src/theme";
 
+// 新增：定位 Hook
+import { useUserLocation } from "./src/hooks/useUserLocation";
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Discover);
@@ -73,6 +76,13 @@ export default function App() {
     };
     fetchData();
   }, []);
+
+  // 新增：调用定位 hook
+  const {
+    coords: userCoords,
+    isLoading: isLocatingUser,
+    permissionDenied,
+  } = useUserLocation();
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
@@ -169,6 +179,8 @@ export default function App() {
         name: input.name.trim(),
         time: input.time.trim(),
         location: input.location.trim(),
+        latitude: input.latitude,
+        longitude: input.longitude,
         communityId: input.communityId,
         description: input.description.trim(),
         imageUrl,
@@ -219,14 +231,15 @@ export default function App() {
       viewCommunity: (id: string) => {
         setViewingEvent(null);
         setIsCreatingEvent(false);
-        setViewingCommunity(
-          communities.find((c) => c.id === id) || null
-        );
+        setViewingCommunity(communities.find((c) => c.id === id) || null);
       },
       viewEvent: (id: string) => {
         setIsCreatingEvent(false);
         setViewingEvent(events.find((e) => e.id === id) || null);
       },
+      userCoords,
+      isLocatingUser,
+      permissionDenied,
     }),
     [
       currentUser,
@@ -235,6 +248,9 @@ export default function App() {
       events,
       posts,
       handleCreateEvent,
+      userCoords,
+      isLocatingUser,
+      permissionDenied,
     ]
   );
 
@@ -297,7 +313,8 @@ export default function App() {
               Welcome to Togather
             </PaperText>
             <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
-              Explore campus communities and connect with people who share your interests.
+              Explore campus communities and connect with people who share your
+              interests.
             </PaperText>
             <Button
               mode="contained"
