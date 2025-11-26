@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Text, Card, Button, Searchbar, Surface } from "react-native-paper";
 import { AppContext, Community, Event } from "../context/AppContext";
-import { haversineDistanceKm } from "../src/utils/distance";
+import { haversineDistanceKm } from "../src/distance";
 
 type EventCardProps = {
   event: Event;
