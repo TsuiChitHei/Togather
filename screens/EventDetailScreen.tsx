@@ -55,7 +55,7 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
         );
         setDescription(desc);
       } catch {
-        setDescription(`你和 ${matchUser.name} 在兴趣上非常契合！`);
+        setDescription(`You and ${matchUser.name} make a good match!`);
       }
     }
     setIsLoading(false);
@@ -71,7 +71,7 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
         <View style={styles.matchLoadingRow}>
           <ActivityIndicator color={theme.colors.primary} />
           <Text variant="bodyMedium" style={styles.matchLoadingText}>
-            Finding potential matching partners...
+            Finding your match...
           </Text>
         </View>
       </Surface>
@@ -159,11 +159,11 @@ export default function EventDetailScreen({
 
         <Surface style={styles.metaCard} elevation={0}>
           <Text variant="bodyLarge" style={styles.metaText}>
-            <Text style={styles.metaLabel}>时间：</Text>
+            <Text style={styles.metaLabel}>Date/Time: </Text>
             {event.time}
           </Text>
           <Text variant="bodyLarge" style={styles.metaText}>
-            <Text style={styles.metaLabel}>地点：</Text>
+            <Text style={styles.metaLabel}>Location:</Text>
             {event.location}
           </Text>
         </Surface>

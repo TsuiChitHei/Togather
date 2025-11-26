@@ -32,7 +32,7 @@ type MatchPayload = {
 const SAMPLE_MATCHES: MatchPayload[] = [
   {
     id: "match-sample-1",
-    event: { id: 'event-1', name: 'The Peak Social Hike', time: 'Today, 5pm', location: 'Sai Ying Pun MTR Exit A2', communityId: 'comm-1', description: 'Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We\'ll meet at the MTR exit and head up together. All fitness levels welcome.', imageUrl: 'https://picsum.photos/seed/hike/200/200', attendees: ['user-2', 'user-3'] },
+    event: { id: 'event-1', name: 'The Peak Social Hike', time: 'Today, 5pm', location: 'Sai Ying Pun MTR Exit A2', communityId: 'comm-1', description: 'Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We\'ll meet at the MTR exit and head up together. All fitness levels welcome.', imageUrl: 'https://picsum.photos/seed/hike/200/200', attendees: ['user-2', 'user-3'], latitude: 22.283057, longitude: 114.1354754},
     matchUser: {
       id: "user-98",
       name: "Alex Rivers",

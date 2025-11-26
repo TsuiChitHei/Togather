@@ -89,8 +89,10 @@ export default function ProfileSetupScreen({
       },
       joinedCommunityIds: [],
       signedUpEventIds: [],
+      postIds: [],
       avatarUrl: `https://picsum.photos/seed/${name.split(" ").join("")}/200`,
     };
+
     onProfileCreated(newUser);
   };
 
