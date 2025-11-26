@@ -92,8 +92,10 @@ export default function ProfileSetupScreen({
       },
       joinedCommunityIds: [],
       signedUpEventIds: [],
+      postIds: [],
       avatarUrl: `https://picsum.photos/seed/${name.split(" ").join("")}/200`,
     };
+
     onProfileCreated(newUser);
   };
 
@@ -126,7 +128,7 @@ export default function ProfileSetupScreen({
   const renderPublicSection = () => (
     <View style={styles.section}>
       <Text variant="headlineMedium" style={styles.heading}>
-        Let’s talk about you!
+        Let's talk about you!
       </Text>
       <Text variant="titleMedium" style={styles.subheading}>
         Public Section
