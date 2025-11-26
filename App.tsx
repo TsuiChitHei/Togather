@@ -35,7 +35,7 @@ import {
 import { theme } from "./src/theme";
 
 // 新增：定位 Hook
-import { useUserLocation } from "./src/hooks/useUserLocation";
+import { useUserLocation } from "./src/useUserLocation";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
