@@ -204,6 +204,7 @@ class User(BaseModel):
     joinedCommunityIds: Optional[List[str]] = None
     signedUpEventIds: Optional[List[str]] = None
     avatarUrl: Optional[str] = None
+    postIds: Optional[List[str]] = None
 
 class Community(BaseModel):
     id: Optional[str] = None
@@ -316,3 +317,8 @@ def find_similar_users(request: Request):
     docs = users_ref.stream()
     users_data = {"users": [doc.to_dict() for doc in docs]}
     return find_top_similar_users(users_data, user_id)
+
+@app.post("/users")
+def create_user(user: User):
+    _, doc_ref = db.collection("users").add(user.model_dump())
+    return {"message": "User created successfully", "user_id": doc_ref.id}
