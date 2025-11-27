@@ -185,7 +185,7 @@ export default function EventDetailScreen({
         </Button>
 
         <Text variant="titleLarge" style={styles.sectionTitle}>
-          activity introduction
+          Activity Introduction
         </Text>
         <Text variant="bodyMedium" style={styles.eventDescription}>
           {event.description}
