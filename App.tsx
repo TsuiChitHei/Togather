@@ -25,7 +25,7 @@ import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import CreateEventScreen from "./screens/CreateEventScreen";
 import { Screen, AuthScreenType } from "./types";
-
+import { createUserInDatabase } from "./api/user";
 import {
   Provider as PaperProvider,
   Text as PaperText,
@@ -261,6 +261,7 @@ export default function App() {
           onProfileCreated={(newUser) => {
             setUsers((prev) => [...prev, newUser]);
             handleLogin(newUser);
+            createUserInDatabase(newUser);
             setPendingUser(null);
             setAuthScreen(AuthScreenType.Welcome);
           }}
