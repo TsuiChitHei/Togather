@@ -25,7 +25,7 @@ import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import CreateEventScreen from "./screens/CreateEventScreen";
 import { Screen, AuthScreenType } from "./types";
-import { createUserInDatabase } from "./api/user";
+import { createUserInDatabase, updateUserInDatabase } from "./api/user";
 import {
   Provider as PaperProvider,
   Text as PaperText,
@@ -102,6 +102,7 @@ export default function App() {
       setUsers((prevUsers) =>
         prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
       );
+      updateUserInDatabase(updatedUser);
     }
   };
 
