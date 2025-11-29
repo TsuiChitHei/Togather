@@ -312,7 +312,7 @@ export default function App() {
       case AuthScreenType.Welcome:
       default:
         return (
-          <ImageBackground
+          <ImageBackground 
             source={require('./assets/Login Background Image.png')}
             style={styles.welcomeContainer}
             resizeMode="cover"
@@ -330,6 +330,7 @@ export default function App() {
                 onPress={() => setAuthScreen(AuthScreenType.Login)}
                 style={styles.welcomeButton}
                 contentStyle={styles.welcomeButtonContent}
+                labelStyle={styles.welcomeButtonLabel}
               >
                 Log In
               </Button>
@@ -338,6 +339,7 @@ export default function App() {
                 onPress={() => setAuthScreen(AuthScreenType.SignUp)}
                 style={styles.welcomeButton}
                 contentStyle={styles.welcomeButtonContent}
+                labelStyle={styles.welcomeButtonLabel}
               >
                 Sign Up
               </Button>
@@ -477,7 +479,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Optional: semi-transparent overlay for better text readability
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   welcomeTitle: {
     color: "#FFFFFF",
@@ -487,6 +489,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+    fontSize: 28,
   },
   welcomeSubtitle: {
     color: "#FFFFFF",
@@ -495,14 +498,30 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+    fontSize: 16,
+    lineHeight: 22,
   },
   welcomeButton: {
     width: "100%",
     maxWidth: 280,
     marginBottom: 12,
     backgroundColor: "#5B61FF",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   welcomeButtonContent: {
-    height: 48,
+    height: 52,
+  },
+  welcomeButtonLabel: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
