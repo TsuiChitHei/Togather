@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import {
   AppContext,
   User,
@@ -312,31 +312,37 @@ export default function App() {
       case AuthScreenType.Welcome:
       default:
         return (
-          <View style={styles.welcomeContainer}>
-            <PaperText variant="headlineMedium" style={styles.welcomeTitle}>
-              Welcome to Togather
-            </PaperText>
-            <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
-              Explore campus communities and connect with people who share your
-              interests.
-            </PaperText>
-            <Button
-              mode="contained"
-              onPress={() => setAuthScreen(AuthScreenType.Login)}
-              style={styles.welcomeButton}
-              contentStyle={styles.welcomeButtonContent}
-            >
-              Log In
-            </Button>
-            <Button
-              mode="contained"
-              onPress={() => setAuthScreen(AuthScreenType.SignUp)}
-              style={styles.welcomeButton}
-              contentStyle={styles.welcomeButtonContent}
-            >
-              Sign Up
-            </Button>
-          </View>
+          <ImageBackground
+            source={require('./assets/Login Background Image.png')}
+            style={styles.welcomeContainer}
+            resizeMode="cover"
+          >
+            <View style={styles.welcomeOverlay}>
+              <PaperText variant="headlineMedium" style={styles.welcomeTitle}>
+                Welcome to Togather
+              </PaperText>
+              <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
+                Explore campus communities and connect with people who share your
+                interests.
+              </PaperText>
+              <Button
+                mode="contained"
+                onPress={() => setAuthScreen(AuthScreenType.Login)}
+                style={styles.welcomeButton}
+                contentStyle={styles.welcomeButtonContent}
+              >
+                Log In
+              </Button>
+              <Button
+                mode="contained"
+                onPress={() => setAuthScreen(AuthScreenType.SignUp)}
+                style={styles.welcomeButton}
+                contentStyle={styles.welcomeButtonContent}
+              >
+                Sign Up
+              </Button>
+            </View>
+          </ImageBackground>
         );
     }
   };
@@ -465,22 +471,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
-    backgroundColor: "#5B61FF",
+  },
+  welcomeOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Optional: semi-transparent overlay for better text readability
   },
   welcomeTitle: {
     color: "#FFFFFF",
     marginBottom: 12,
     textAlign: "center",
+    fontWeight: "bold",
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   welcomeSubtitle: {
-    color: "#E0E7FF",
+    color: "#FFFFFF",
     marginBottom: 32,
     textAlign: "center",
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   welcomeButton: {
     width: "100%",
     maxWidth: 280,
     marginBottom: 12,
+    backgroundColor: "#5B61FF",
   },
   welcomeButtonContent: {
     height: 48,
