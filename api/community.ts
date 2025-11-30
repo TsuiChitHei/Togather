@@ -1,6 +1,6 @@
 import { Community } from "../context/AppContext";
 
-const API_URL = "https://togather-y3c5.onrender.com";
+const API_URL = "https://togather-y3c5.onrender.com"; //ttp://172.20.5.135:8000";
 
 export const getIndividualCommunityFromDatabase = async (
   communityId: string
