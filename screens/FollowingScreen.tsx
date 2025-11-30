@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { View, ScrollView, StyleSheet, Image } from "react-native";
 import {
   Text,
@@ -6,12 +6,10 @@ import {
   Avatar,
   Surface,
   TouchableRipple,
-  useTheme,
-  ActivityIndicator,
 } from "react-native-paper";
 import { AppContext, Event, Post, User } from "../context/AppContext";
 import { MOCK_POSTS } from "../data/mockData";
-import { generateMatchDescription } from "../services/geminiService";
+import { theme } from "../src/theme";
 
 type MatchPayload = {
   id: string;
@@ -23,10 +21,22 @@ type MatchPayload = {
   compatibilityLabel?: string;
 };
 
-// Sample payload to illustrate shape; replace with real match results when wired up.
 const SAMPLE_MATCHES: MatchPayload[] = [
   {
     id: "match-sample-1",
+    event: {
+      id: "event-1",
+      name: "The Peak Social Hike",
+      time: "Today, 5pm",
+      location: "Sai Ying Pun MTR Exit A2",
+      communityId: "comm-1",
+      description:
+        "Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We'll meet at the MTR exit and head up together. All fitness levels welcome.",
+      imageUrl: "https://picsum.photos/seed/hike/200/200",
+      attendees: ["user-2", "user-3"],
+      latitude: 22.283057,
+      longitude: 114.1354754,
+    },
     event: {
       id: "event-1",
       name: "The Peak Social Hike",
@@ -49,57 +59,54 @@ const SAMPLE_MATCHES: MatchPayload[] = [
       headline: "Final-year marketing major who never misses a hike.",
     },
     description: "You both share a love for sunrise trails and photography.",
+    description: "You both share a love for sunrise trails and photography.",
     compatibilityLabel: "Trail vibes",
   },
 ];
 
 const MatchmakingCard = ({ match }: { match: MatchPayload }) => {
   const context = useContext(AppContext);
-  const theme = useTheme();
-
   if (!context) return null;
   const { viewEvent } = context;
 
   return (
-    <Card style={styles.postCard} mode="contained">
+    <Card style={styles.card} elevation={5}>
       <Card.Content>
-        {/* Header row */}
-        <View style={styles.eventMetaRow}>
-          <Text variant="labelSmall" style={styles.eventBadge}>
-            Match update
+        <View style={styles.rowBetween}>
+          <Text variant="labelMedium" style={styles.badge}>
+            Match
           </Text>
-          <Text variant="bodySmall" style={styles.eventTimestamp}>
+          <Text variant="bodySmall" style={styles.metaSubtle}>
             {match.event.time}
           </Text>
         </View>
 
-        {/* Event name */}
-        <Text variant="bodySmall" style={styles.eventContext}>
+        <Text variant="bodyMedium" style={styles.metaPrimary}>
           {match.event.name}
         </Text>
 
-        {/* Pressable body */}
         <TouchableRipple
-          rippleColor={theme.colors.surfaceDisabled}
+          rippleColor={theme.colors.surfaceVariant}
           onPress={() => viewEvent(match.event.id)}
           borderless={false}
+          style={styles.touchable}
         >
-          <View style={styles.eventCardBody}>
+          <View style={styles.eventBody}>
             <Avatar.Image
               source={{ uri: match.matchUser.avatarUrl }}
               size={56}
-              style={styles.matchAvatar}
+              style={styles.avatar}
             />
             <View style={styles.eventInfo}>
-              <Text variant="titleMedium" style={styles.matchName}>
+              <Text variant="titleSmall" style={styles.titlePrimary}>
                 {match.matchUser.name}
               </Text>
-              <Text variant="bodyMedium" style={styles.matchDescription}>
+              <Text variant="bodyMedium" style={styles.bodySecondary}>
                 {match.description}
               </Text>
             </View>
-            <View style={styles.eventChevron} pointerEvents="none">
-              <Text style={styles.eventChevronText}>›</Text>
+            <View style={styles.chevron} pointerEvents="none">
+              <Text style={styles.chevronText}>›</Text>
             </View>
           </View>
         </TouchableRipple>
@@ -110,13 +117,10 @@ const MatchmakingCard = ({ match }: { match: MatchPayload }) => {
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const context = useContext(AppContext);
-  const theme = useTheme();
-
   if (!context) return null;
 
   const { users, events, viewEvent } = context;
   const author = users.find((u) => u.id === post.authorId);
-
   if (!author) return null;
 
   if (post.type === "event") {
@@ -124,23 +128,24 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
     if (!event) return null;
 
     return (
-      <Card style={styles.postCard} mode="contained">
+      <Card style={styles.card} elevation={5}>
         <Card.Content>
-          <View style={styles.eventMetaRow}>
-            <Text variant="labelSmall" style={styles.eventBadge}>
-              Event drop
+          <View style={styles.rowBetween}>
+            <Text variant="labelMedium" style={styles.badge}>
+              New Event
             </Text>
-            <Text variant="bodySmall" style={styles.eventTimestamp}>
+            <Text variant="bodySmall" style={styles.metaSubtle}>
               {post.timestamp}
             </Text>
           </View>
 
           <TouchableRipple
-            rippleColor={theme.colors.surfaceDisabled}
+            rippleColor={theme.colors.surfaceVariant}
             onPress={() => viewEvent(event.id)}
             borderless={false}
+            style={styles.touchable}
           >
-            <View style={styles.eventCardBody}>
+            <View style={styles.eventBody}>
               {event.imageUrl ? (
                 <Image
                   source={{ uri: event.imageUrl }}
@@ -149,18 +154,18 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
                 />
               ) : null}
               <View style={styles.eventInfo}>
-                <Text variant="titleSmall" style={styles.eventTitle}>
+                <Text variant="titleSmall" style={styles.titlePrimary}>
                   {event.name}
                 </Text>
-                <Text variant="bodySmall" style={styles.eventMeta}>
+                <Text variant="bodySmall" style={styles.metaSecondary}>
                   {event.time}
                 </Text>
-                <Text variant="bodySmall" style={styles.eventMeta}>
+                <Text variant="bodySmall" style={styles.metaSecondary}>
                   {event.location}
                 </Text>
               </View>
-              <View style={styles.eventChevron} pointerEvents="none">
-                <Text style={styles.eventChevronText}>›</Text>
+              <View style={styles.chevron} pointerEvents="none">
+                <Text style={styles.chevronText}>›</Text>
               </View>
             </View>
           </TouchableRipple>
@@ -170,20 +175,20 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   }
 
   return (
-    <Card style={styles.postCard} mode="contained">
+    <Card style={styles.card} elevation={5}>
       <Card.Content>
-        <View style={styles.authorRow}>
+        <View style={styles.row}>
           <Avatar.Image source={{ uri: author.avatarUrl }} size={40} />
           <View style={styles.authorDetails}>
-            <Text variant="titleSmall" style={styles.authorName}>
+            <Text variant="titleSmall" style={styles.titlePrimary}>
               {author.name}
             </Text>
-            <Text variant="bodySmall" style={styles.timestamp}>
+            <Text variant="bodySmall" style={styles.metaSubtle}>
               {post.timestamp}
             </Text>
           </View>
         </View>
-        <Text variant="bodyMedium" style={styles.postBody}>
+        <Text variant="bodyMedium" style={styles.bodySecondary}>
           {post.content}
         </Text>
       </Card.Content>
@@ -196,9 +201,9 @@ export default function FollowingScreen() {
 
   if (!context || !context.currentUser) {
     return (
-      <Surface style={styles.emptyState} elevation={0}>
-        <Text variant="bodyMedium" style={styles.emptyStateText}>
-          Please log in to view your following feed.
+      <Surface style={styles.loadingContainer} elevation={2}>
+        <Text variant="bodyLarge" style={styles.loadingText}>
+          Please sign in to view your feed
         </Text>
       </Surface>
     );
@@ -213,32 +218,30 @@ export default function FollowingScreen() {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Surface style={styles.header} elevation={1}>
-        <Text variant="headlineLarge" style={styles.title}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.headerSection}>
+        <Text variant="displayMedium" style={styles.title}>
           Following
         </Text>
-      </Surface>
+        <Text variant="bodyLarge" style={styles.subtitle}>
+          Your personalized feed
+        </Text>
+      </View>
 
       <View style={styles.feed}>
         {followedPosts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
 
-        {<MatchmakingCard match={SAMPLE_MATCHES[0]} />}
+        <MatchmakingCard match={SAMPLE_MATCHES[0]} />
 
         {followedPosts.length === 0 && joinedEvents.length === 0 ? (
           <View style={styles.feedEmpty}>
-            <Text variant="titleSmall" style={styles.feedEmptyTitle}>
-              Nothing to see yet
+            <Text variant="titleLarge" style={styles.emptyTitle}>
+              Your feed is empty
             </Text>
-            <Text variant="bodyMedium" style={styles.feedEmptySubtitle}>
-              Join a few communities on the Discover page to start building your
-              feed.
+            <Text variant="bodyLarge" style={styles.emptySubtitle}>
+              Join communities on the Discover page to start seeing updates in your feed
             </Text>
           </View>
         ) : null}
@@ -248,101 +251,82 @@ export default function FollowingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  content: {
-    paddingBottom: 24,
-  },
-  header: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
-  },
+  // Screen container and header (aligned with DiscoverScreen)
+  container: { flex: 1, backgroundColor: "#F9FAFB" },
+  content: { paddingHorizontal: 0, paddingBottom: 64 },
+  headerSection: { marginBottom: 32, paddingHorizontal: 24, paddingTop: 32 },
   title: {
     color: "#111827",
-    fontWeight: "700",
+    fontWeight: "bold",
+    letterSpacing: -1,
+    marginBottom: 12,
+  },
+  subtitle: { color: "#6B7280", lineHeight: 24 },
+
+  // Feed area
+  feed: { paddingHorizontal: 24, paddingTop: 8 },
+
+  // Card style (aligned with Discover cards)
+  card: {
+    borderRadius: 28,
     marginBottom: 16,
-  },
-  feed: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  postCard: {
-    borderRadius: 18,
-    marginBottom: 16,
-  },
-  cardTouchable: {
-    borderRadius: 18,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
+    backgroundColor: "#FFFFFF",
   },
-  authorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  authorDetails: {
-    marginLeft: 12,
-  },
-  authorName: {
-    color: "#1F2937",
-    fontWeight: "600",
-  },
-  timestamp: {
-    color: "#9CA3AF",
-  },
-  postBody: {
-    marginTop: 12,
-    color: "#374151",
-    lineHeight: 22,
-  },
-  eventMetaRow: {
+
+  // Common rows and spacing
+  row: { flexDirection: "row", alignItems: "center" },
+  rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
   },
-  eventContext: {
-    marginTop: 4,
-    marginBottom: 12,
-    color: "#6b6b6b",
+  touchable: { borderRadius: 24, overflow: "hidden" },
+
+  // Typography tokens (aligned to DiscoverScreen hierarchy)
+  titlePrimary: { color: "#111827", fontWeight: "bold", fontSize: 18 },
+  metaPrimary: {
+    color: "#111827",
+    marginTop: 6,
+    marginBottom: 14,
+    fontSize: 16,
+    fontWeight: "600",
   },
-  eventBadge: {
+  metaSecondary: { color: "#6B7280", marginTop: 2, fontSize: 14, lineHeight: 20 },
+  metaSubtle: { color: "#9CA3AF", fontSize: 13 },
+  bodySecondary: { marginTop: 12, color: "#4B5563", lineHeight: 22, fontSize: 15 },
+
+  // Badges (added to fix missing style)
+  badge: {
     backgroundColor: "#EEF2FF",
     color: "#4C1D95",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
     overflow: "hidden",
     fontWeight: "600",
+    fontSize: 12,
+    letterSpacing: 0.3,
   },
-  eventTimestamp: {
-    color: "#9CA3AF",
-  },
-  eventCardBody: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  eventImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 12,
-  },
-  eventInfo: {
-    flex: 1,
-    marginLeft: 14,
-  },
-  eventTitle: {
-    color: "#111827",
-    fontWeight: "600",
-  },
-  eventMeta: {
-    color: "#6B7280",
-    marginTop: 4,
-  },
-  eventChevron: {
+
+  // Event card body
+  eventBody: { flexDirection: "row", alignItems: "center" },
+  eventImage: { width: 64, height: 64, borderRadius: 16 },
+  eventInfo: { flex: 1, marginLeft: 16 },
+
+  // Avatars
+  avatar: { shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+
+  // Author details (added to fix missing style)
+  authorDetails: { marginLeft: 12 },
+
+  // Chevron
+  chevron: {
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -351,104 +335,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 12,
   },
-  eventChevronText: {
-    color: "#6B7280",
-    fontSize: 20,
-    lineHeight: 20,
-  },
-  matchEventHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  matchEventTextGroup: {
-    flexShrink: 1,
-  },
-  matchEventName: {
-    color: "#1F2937",
-    fontWeight: "600",
-    marginTop: 6,
-  },
-  matchEventMeta: {
-    alignItems: "flex-end",
-  },
-  matchEventMetaText: {
-    color: "#9CA3AF",
-  },
-  matchFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 16,
-  },
-  matchFooterText: {
-    color: "#6B7280",
-  },
-  matchBadge: {
-    backgroundColor: "#ECFDF5",
-    color: "#047857",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: "hidden",
-    fontWeight: "600",
-  },
-  matchLoadingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 12,
-  },
-  matchLoadingText: {
-    color: "#4B5563",
-    marginLeft: 8,
-  },
-  matchContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 16,
-  },
-  matchAvatar: {
-    marginRight: 12,
-  },
-  matchDetails: {
-    flex: 1,
-  },
-  matchName: {
-    color: "#1F2937",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  matchSubtle: {
-    color: "#6B7280",
-    marginBottom: 8,
-  },
-  matchDescription: {
-    color: "#4B5563",
-    lineHeight: 20,
-  },
-  feedEmpty: {
-    alignItems: "center",
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-  },
-  feedEmptyTitle: {
-    color: "#6B7280",
-    marginBottom: 8,
-  },
-  feedEmptySubtitle: {
-    color: "#9CA3AF",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
+  chevronText: { color: "#6B7280", fontSize: 20, lineHeight: 20 },
+
+  // Empty state
+  feedEmpty: { alignItems: "center", paddingVertical: 48, paddingHorizontal: 24 },
+  emptyTitle: { color: "#475569", marginBottom: 12, fontWeight: "600", fontSize: 18 },
+  emptySubtitle: { color: "#94A3B8", textAlign: "center", lineHeight: 24, fontSize: 16 },
+
+  // Loading state (aligned with Discover's Surface)
+  loadingContainer: {
+    padding: 32,
     backgroundColor: "#F3F4F6",
+    borderRadius: 20,
+    margin: 24,
   },
-  emptyStateText: {
-    color: "#4B5563",
-  },
+  loadingText: { color: "#6B7280", marginTop: 16 },
 });

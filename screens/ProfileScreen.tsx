@@ -1,3 +1,4 @@
+// Updated ProfileScreen.tsx
 import React, { useContext, useState, useEffect, useMemo } from "react";
 import { View, ScrollView, StyleSheet, Alert } from "react-native";
 import {
@@ -8,10 +9,11 @@ import {
   Divider,
   Surface,
   TextInput,
-  useTheme,
   ActivityIndicator,
 } from "react-native-paper";
 import { AppContext, User } from "../context/AppContext";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "../src/theme";
 
 interface ProfileScreenProps {
   onLogout: () => void;
@@ -30,7 +32,6 @@ const interestOptions = [
 
 export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
   const context = useContext(AppContext);
-  const theme = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User | null>(null);
 
@@ -49,12 +50,15 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
 
   if (!context || !context.currentUser) {
     return (
-      <Surface style={styles.loadingContainer} elevation={0}>
-        <ActivityIndicator animating size="small" />
-        <Text variant="bodyMedium" style={styles.loadingText}>
+      <LinearGradient
+        colors={[theme.colors.gradientPrimaryStart, theme.colors.gradientPrimaryEnd]}
+        style={styles.loadingContainer}
+      >
+        <ActivityIndicator animating size="large" color={theme.colors.onPrimary} />
+        <Text variant="bodyLarge" style={[styles.loadingText, { color: theme.colors.onPrimary }]}>
           Loading profile...
         </Text>
-      </Surface>
+      </LinearGradient>
     );
   }
 
@@ -92,7 +96,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
   const handleSave = () => {
     if (!formData) return;
     if (!formData.name.trim() || !formData.bio.trim()) {
-      Alert.alert("Prompt", "Please fill in at least your name and a brief introduction.");
+      Alert.alert("Required", "Please fill in your name and a brief introduction.");
       return;
     }
     updateUser({
@@ -109,108 +113,121 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.headerRow}>
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          Your Profile
-        </Text>
-        <Button
-          mode="text"
-          onPress={() => setIsEditing((prev) => !prev)}
-          labelStyle={styles.editButtonLabel}
-        >
-          {isEditing ? "Cancel" : "Edit"}
-        </Button>
-      </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <LinearGradient
+        colors={[theme.colors.gradientPrimaryStart, theme.colors.gradientPrimaryEnd]}
+        style={styles.headerGradient}
+      >
+        <View style={styles.headerRow}>
+          <View>
+            <Text variant="displayMedium" style={[styles.headerTitle, { color: theme.colors.onPrimary }]}>
+              Profile
+            </Text>
+            <Text variant="bodyLarge" style={[styles.headerSubtitle, { color: theme.colors.inversePrimary }]}>
+              Manage your account information
+            </Text>
+          </View>
+          <Button
+            mode="text"
+            onPress={() => setIsEditing((prev) => !prev)}
+            labelStyle={[styles.editButtonLabel, { color: theme.colors.onPrimary }]}
+          >
+            {isEditing ? "Cancel" : "Edit"}
+          </Button>
+        </View>
+      </LinearGradient>
 
       <View style={styles.avatarSection}>
-        <Avatar.Image source={{ uri: currentUser.avatarUrl }} size={96} />
-        <Text variant="titleLarge" style={styles.profileName}>
+        <Avatar.Image source={{ uri: currentUser.avatarUrl }} size={120} style={styles.avatarImage} />
+        <Text variant="headlineLarge" style={styles.profileName}>
           {currentUser.name}
         </Text>
-        <Text variant="bodyMedium" style={styles.profileFaculty}>
-          {currentUser.faculty}
+        <Text variant="bodyLarge" style={styles.profileFaculty}>
+          {currentUser.faculty} • {currentUser.major}
         </Text>
       </View>
 
       {isEditing && formData ? (
-        <Surface style={styles.card} elevation={0}>
-          <Text variant="titleMedium" style={styles.sectionHeading}>
-            Public Section
+        <Surface style={styles.card} elevation={4}>
+          <Text variant="headlineMedium" style={styles.sectionHeading}>
+            Public information
           </Text>
 
+          <Text variant="labelLarge" style={styles.label}>
+            Name
+          </Text>
           <TextInput
-            label="Name"
             mode="outlined"
             value={formData.name}
-            onChangeText={(value) => handleInputChange("name", value)}
+            onChangeText={(text) => handleInputChange("name", text)}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
           />
 
+          <Text variant="labelLarge" style={styles.label}>
+            Introduction
+          </Text>
           <TextInput
-            label="Bio"
             mode="outlined"
             value={formData.bio}
-            onChangeText={(value) => handleInputChange("bio", value)}
+            onChangeText={(text) => handleInputChange("bio", text)}
             multiline
             numberOfLines={4}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
           />
 
-          <View>
-            <Text variant="labelLarge" style={styles.label}>
-              Interests
-            </Text>
-            <View style={styles.interestRow}>
-              {interestOptions.map((interest) => {
-                const selected = formData.interests.includes(interest);
-                return (
-                  <Chip
-                    key={interest}
-                    selected={selected}
-                    onPress={() => handleToggleInterest(interest)}
-                    style={[
-                      styles.interestChip,
-                      selected && { backgroundColor: theme.colors.primary },
-                    ]}
-                    textStyle={[
-                      styles.interestChipText,
-                      selected && { color: theme.colors.onPrimary },
-                    ]}
-                  >
-                    {interest}
-                  </Chip>
-                );
-              })}
-            </View>
+          <Text variant="labelLarge" style={styles.label}>
+            Interests
+          </Text>
+          <View style={styles.interestRow}>
+            {interestOptions.map((interest) => (
+              <Chip
+                key={interest}
+                selected={formData.interests.includes(interest)}
+                onPress={() => handleToggleInterest(interest)}
+                style={styles.interestChip}
+                textStyle={styles.interestChipText}
+                icon={formData.interests.includes(interest) ? "check" : undefined}
+              >
+                {interest}
+              </Chip>
+            ))}
           </View>
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleMedium" style={styles.sectionHeading}>
-            Private Section
+          <Text variant="headlineMedium" style={styles.sectionHeading}>
+            Private prompts
           </Text>
-          <Text variant="bodySmall" style={styles.privateHint}>
-            This is only used for matchmaking and won't be shown to others.
+          <Text variant="bodyMedium" style={styles.privateHint}>
+            These help us find better matches for you. Not shown publicly.
           </Text>
 
+          <Text variant="labelLarge" style={styles.label}>
+            Something unique about me...
+          </Text>
           <TextInput
-            label="A perfect weekend for me is..."
             mode="outlined"
             value={editablePrivatePrompts.prompt1}
-            onChangeText={(value) => handlePrivatePromptChange("prompt1", value)}
+            onChangeText={(text) => handlePrivatePromptChange("prompt1", text)}
+            multiline
+            numberOfLines={3}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
           />
 
+          <Text variant="labelLarge" style={styles.label}>
+            I'm looking for friends who...
+          </Text>
           <TextInput
-            label="I'm looking for friends who are..."
             mode="outlined"
             value={editablePrivatePrompts.prompt2}
-            onChangeText={(value) => handlePrivatePromptChange("prompt2", value)}
+            onChangeText={(text) => handlePrivatePromptChange("prompt2", text)}
+            multiline
+            numberOfLines={3}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
           />
 
           <Button
@@ -220,41 +237,25 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
             contentStyle={styles.saveButtonContent}
             labelStyle={styles.saveButtonLabel}
           >
-            Save Changes
+            Save changes
           </Button>
         </Surface>
       ) : (
-        <Surface style={styles.card} elevation={0}>
+        <Surface style={styles.card} elevation={4}>
           <View style={styles.infoRow}>
             <Text variant="labelLarge" style={styles.label}>
-              Year
+              Name
             </Text>
             <Text variant="bodyLarge" style={styles.infoValue}>
-              {currentUser.year}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text variant="labelLarge" style={styles.label}>
-              Major
-            </Text>
-            <Text variant="bodyLarge" style={styles.infoValue}>
-              {currentUser.major}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text variant="labelLarge" style={styles.label}>
-              Hometown
-            </Text>
-            <Text variant="bodyLarge" style={styles.infoValue}>
-              {currentUser.hometown}
+              {currentUser.name}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text variant="labelLarge" style={styles.label}>
-              Bio
+              Introduction
             </Text>
-            <Text variant="bodyMedium" style={styles.bioText}>
+            <Text variant="bodyLarge" style={styles.bioText}>
               {currentUser.bio}
             </Text>
           </View>
@@ -279,157 +280,138 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
         </Surface>
       )}
 
-      <Divider style={styles.sectionDivider} />
+      {/* Settings section: improved alignment and hierarchy */}
+      <View style={styles.sectionContainer}>
+        <Surface style={styles.settingsCard} elevation={4}>
+          <View style={styles.settingsHeaderRow}>
+            <View style={styles.settingsHeaderTextGroup}>
+              <Text variant="headlineMedium" style={styles.settingsTitle}>
+                Settings
+              </Text>
+              <Text variant="bodyMedium" style={styles.settingsSubtitle}>
+                Manage your account and preferences
+              </Text>
+            </View>
+          </View>
 
-      <Text variant="titleMedium" style={styles.sectionHeading}>
-        Settings
-      </Text>
-      <Button
-        mode="contained-tonal"
-        onPress={onLogout}
-        style={styles.logoutButton}
-        contentStyle={styles.logoutButtonContent}
-        labelStyle={styles.logoutButtonLabel}
-      >
-        Log Out
-      </Button>
+          <Divider style={styles.settingsDivider} />
+
+          <Button
+            mode="outlined"
+            onPress={onLogout}
+            style={styles.logoutButton}
+            contentStyle={styles.logoutButtonContent}
+            labelStyle={styles.logoutButtonLabel}
+          >
+            Log out
+          </Button>
+        </Surface>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  headerTitle: {
-    color: "#111827",
-    fontWeight: "700",
-  },
-  editButtonLabel: {
-    fontWeight: "600",
-  },
-  avatarSection: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  profileName: {
-    marginTop: 16,
-    color: "#1F2937",
-    fontWeight: "700",
-  },
-  profileFaculty: {
-    marginTop: 4,
-    color: "#6B7280",
-  },
+  // Screen
+  container: { flex: 1, backgroundColor: "#F9FAFB" },
+  contentContainer: { paddingBottom: 64 },
+
+  // Header gradient
+  headerGradient: { paddingTop: 64, paddingBottom: 32, paddingHorizontal: 24 },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  headerTitle: { fontWeight: "bold", letterSpacing: -1, marginBottom: 8 },
+  headerSubtitle: { lineHeight: 24 },
+  editButtonLabel: { fontWeight: "bold", fontSize: 16 },
+
+  // Avatar section
+  avatarSection: { alignItems: "center", marginBottom: 40, paddingVertical: 32 },
+  avatarImage: { shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 16, elevation: 8 },
+  profileName: { marginTop: 24, color: "#111827", fontWeight: "bold", fontSize: 28, letterSpacing: -0.5 },
+  profileFaculty: { marginTop: 8, color: "#6B7280", fontSize: 16 },
+
+  // Cards
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 28,
+    padding: 32,
+    marginHorizontal: 24,
+    marginBottom: 32,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
   },
+
+  // Section heading
   sectionHeading: {
     color: "#111827",
-    fontWeight: "600",
-    marginBottom: 16,
+    fontWeight: "bold",
+    marginBottom: 24,
+    fontSize: 24,
+    letterSpacing: -0.5,
   },
-  label: {
-    color: "#374151",
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  input: {
-    marginBottom: 16,
-    backgroundColor: "#FFFFFF",
-  },
-  interestRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
+
+  // Form labels and inputs
+  label: { color: "#1F2937", fontWeight: "500", marginBottom: 12, fontSize: 15 },
+  input: { marginBottom: 24, backgroundColor: "#FFFFFF" },
+  inputOutline: { borderWidth: 1, borderRadius: 16 },
+
+  // Interests (edit)
+  interestRow: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   interestChip: {
     borderRadius: 999,
-    backgroundColor: "#E5E7EB",
-  },
-  interestChipText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#374151",
-  },
-  divider: {
-    marginVertical: 20,
-  },
-  privateHint: {
-    color: "#6B7280",
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  saveButton: {
-    marginTop: 8,
-    borderRadius: 12,
-  },
-  saveButtonContent: {
-    height: 50,
-  },
-  saveButtonLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  infoRow: {
-    marginBottom: 16,
-  },
-  infoValue: {
-    color: "#1F2937",
-  },
-  bioText: {
-    color: "#4B5563",
-    lineHeight: 20,
-  },
-  interestDisplayRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  interestDisplayChip: {
-    borderRadius: 999,
-  },
-  interestDisplayChipText: {
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  sectionDivider: {
-    marginVertical: 32,
-  },
-  logoutButton: {
-    borderRadius: 12,
-  },
-  logoutButtonContent: {
-    height: 52,
-  },
-  logoutButtonLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
     backgroundColor: "#F3F4F6",
+    height: 44,
+    paddingHorizontal: 16,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  interestChipText: { fontSize: 15, fontWeight: "500", color: "#4B5563" },
+
+  // Divider
+  divider: { marginVertical: 32, backgroundColor: "#E5E7EB" },
+
+  // Private prompts hint
+  privateHint: { color: "#6B7280", marginBottom: 24, lineHeight: 24, fontSize: 15 },
+
+  // Save button
+  saveButton: { marginTop: 24, borderRadius: 16, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 12, elevation: 6 },
+  saveButtonContent: { height: 56 },
+  saveButtonLabel: { fontSize: 16, fontWeight: "bold", letterSpacing: 0.5 },
+
+  // Info view mode
+  infoRow: { marginBottom: 32 },
+  infoValue: { color: "#1F2937", fontSize: 16, lineHeight: 24 },
+  bioText: { color: "#4B5563", lineHeight: 26, fontSize: 16 },
+  interestDisplayRow: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
+  interestDisplayChip: { borderRadius: 999, borderColor: "#D1D5DB", height: 40, paddingHorizontal: 16 },
+  interestDisplayChipText: { fontSize: 15, fontWeight: "500", color: "#4B5563" },
+
+  // Settings section container
+  sectionContainer: { paddingHorizontal: 24 },
+  settingsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 28,
     padding: 24,
+    marginBottom: 32,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 5,
   },
-  loadingText: {
-    color: "#4B5563",
-  },
+  settingsHeaderRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  settingsHeaderTextGroup: { flex: 1 },
+  settingsTitle: { color: "#111827", fontWeight: "bold", fontSize: 22, letterSpacing: -0.5 },
+  settingsSubtitle: { color: "#6B7280", marginTop: 6, fontSize: 15, lineHeight: 22 },
+  settingsDivider: { marginVertical: 16, backgroundColor: "#E5E7EB" },
+
+  // Logout
+  logoutButton: { borderRadius: 16, borderColor: "#D1D5DB", shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
+  logoutButtonContent: { height: 52 },
+  logoutButtonLabel: { fontSize: 16, fontWeight: "bold", color: "#1F2937", letterSpacing: 0.3 },
+
+  // Loading
+  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
+  loadingText: { fontSize: 18, fontWeight: "500" },
 });

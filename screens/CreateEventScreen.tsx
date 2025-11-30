@@ -32,6 +32,7 @@ import DateTimePicker, {
 import * as ImagePicker from "expo-image-picker";
 import { AppContext, CreateEventInput, Event } from "../context/AppContext";
 import { geocodeAddress } from "../services/geocodingService";
+import { theme } from "../src/theme"
 
 interface CreateEventScreenProps {
   onCancel: () => void;
@@ -227,7 +228,7 @@ export default function CreateEventScreen({
 
   const handleGeocode = async () => {
     if (!location.trim()) {
-      Alert.alert("Notice", "Please enter an address before fetching coordinates.");
+      Alert.alert("Required", "Please enter an address before fetching coordinates.");
       return;
     }
     try {
@@ -248,29 +249,29 @@ export default function CreateEventScreen({
 
   const handleSubmit = () => {
     if (!currentUser) {
-      Alert.alert("Notice", "Please log in before creating an event.");
+      Alert.alert("Required", "Please sign in before creating an event.");
       return;
     }
     if (!name.trim() || !location.trim() || !description.trim()) {
-      Alert.alert("Notice", "Please complete all required fields.");
+      Alert.alert("Required", "Please complete all required fields.");
       return;
     }
     if (!latitude || !longitude) {
-      Alert.alert("Notice", "Please fetch coordinates for the event location.");
+      Alert.alert("Required", "Please fetch coordinates for the event location.");
       return;
     }
     if (!selectedCommunity) {
-      Alert.alert("Notice", "Please choose a community for this event.");
+      Alert.alert("Required", "Please choose a community for this event.");
       return;
     }
     if (!eventDate || !eventTime) {
-      Alert.alert("Notice", "Please select both a date and a time.");
+      Alert.alert("Required", "Please select both a date and a time.");
       return;
     }
 
     const scheduleString = composeScheduleString();
     if (!scheduleString) {
-      Alert.alert("Notice", "Unable to format date and time. Please try again.");
+      Alert.alert("Error", "Unable to format date and time. Please try again.");
       return;
     }
 
@@ -278,7 +279,7 @@ export default function CreateEventScreen({
     const lngValue = Number(longitude);
 
     if (!Number.isFinite(latValue) || !Number.isFinite(lngValue)) {
-      Alert.alert("Notice", "Invalid coordinates. Please fetch them again.");
+      Alert.alert("Error", "Invalid coordinates. Please fetch them again.");
       return;
     }
 
@@ -301,7 +302,7 @@ export default function CreateEventScreen({
 
     if (!newEvent) {
       Alert.alert(
-        "Notice",
+        "Error",
         "Failed to create the event. Please try again later."
       );
       return;
@@ -330,11 +331,11 @@ export default function CreateEventScreen({
             containerColor={theme.colors.primaryContainer}
             iconColor={theme.colors.primary}
           />
-          <Text variant="headlineMedium" style={styles.successTitle}>
-            Event created successfully!
+          <Text variant="displaySmall" style={styles.successTitle}>
+            Event Created!
           </Text>
-          <Text variant="bodyMedium" style={styles.successSubtitle}>
-            Your event "{createdEvent.name}" is now live.
+          <Text variant="bodyLarge" style={styles.successSubtitle}>
+            Your event "{createdEvent.name}" is now live
           </Text>
         </View>
 
@@ -406,16 +407,16 @@ export default function CreateEventScreen({
             size={24}
             mode="contained-tonal"
             onPress={onCancel}
-            containerColor="rgba(17,24,39,0.08)"
+            containerColor={theme.colors.surfaceVariant}
           />
-          <Text variant="headlineMedium" style={styles.headerTitle}>
+          <Text variant="displaySmall" style={styles.headerTitle}>
             Create Event
           </Text>
         </View>
 
-        <Text variant="bodyMedium" style={styles.helperText}>
+        <Text variant="bodyLarge" style={styles.helperText}>
           Share the essential details for your event and publish it to one of
-          your communities.
+          your communities
         </Text>
 
         <View style={styles.fieldGroup}>
@@ -425,6 +426,8 @@ export default function CreateEventScreen({
             value={name}
             onChangeText={setName}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="text-box-outline" />}
           />
           <TextInput
             label="Location"
@@ -433,6 +436,8 @@ export default function CreateEventScreen({
             onChangeText={setLocation}
             placeholder="e.g. Student Union Auditorium"
             style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="map-marker-outline" />}
           />
           <Button
             mode="outlined"
@@ -481,6 +486,8 @@ export default function CreateEventScreen({
             multiline
             numberOfLines={4}
             style={styles.input}
+            outlineStyle={styles.inputOutline}
+            placeholder="Describe your event..."
           />
           <View style={styles.uploadGroup}>
             <Button
@@ -506,16 +513,17 @@ export default function CreateEventScreen({
             onChangeText={setImageUrlInput}
             placeholder="https://..."
             style={styles.input}
+            outlineStyle={styles.inputOutline}
           />
         </View>
 
         <Divider style={styles.divider} />
 
-        <Text variant="titleMedium" style={styles.sectionLabel}>
-          Choose community
+        <Text variant="titleLarge" style={styles.sectionLabel}>
+          Choose Community
         </Text>
-        <Text variant="bodySmall" style={styles.sectionHint}>
-          Communities you have already joined are shown first.
+        <Text variant="bodyMedium" style={styles.sectionHint}>
+          Communities you've joined are shown first
         </Text>
 
         <View style={styles.communityRow}>
@@ -608,27 +616,29 @@ export default function CreateEventScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FAFC",
   },
   contentContainer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 40,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 20,
   },
   headerTitle: {
     marginLeft: 8,
-    color: "#111827",
+    color: "#0F172A",
     fontWeight: "700",
+    letterSpacing: -0.5,
   },
   helperText: {
-    color: "#4B5563",
-    marginBottom: 24,
-    lineHeight: 20,
+    color: "#64748B",
+    marginBottom: 28,
+    lineHeight: 24,
+    fontSize: 16,
   },
   fieldGroup: {
     gap: 16,
@@ -636,6 +646,10 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#FFFFFF",
+  },
+  inputOutline: {
+    borderWidth: 1.5,
+    borderRadius: 12,
   },
   geocodeButton: {
     borderRadius: 12,
@@ -676,13 +690,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionLabel: {
-    color: "#111827",
-    fontWeight: "600",
-    marginBottom: 8,
+    color: "#0F172A",
+    fontWeight: "700",
+    marginBottom: 10,
+    fontSize: 20,
+    letterSpacing: -0.3,
   },
   sectionHint: {
-    color: "#6B7280",
-    marginBottom: 16,
+    color: "#64748B",
+    marginBottom: 20,
+    fontSize: 14,
+    lineHeight: 20,
   },
   communityRow: {
     flexDirection: "row",
@@ -701,13 +719,23 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderRadius: 12,
+    shadowColor: "#6366F1",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   submitButtonContent: {
-    height: 52,
+    height: 56,
+    paddingVertical: 4,
   },
   submitButtonLabel: {
     fontSize: 16,
     fontWeight: "600",
+    letterSpacing: 0.5,
   },
   modalContainer: {
     marginHorizontal: 24,
@@ -733,15 +761,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   successTitle: {
-    marginTop: 12,
+    marginTop: 16,
     textAlign: "center",
-    color: "#111827",
+    color: "#0F172A",
     fontWeight: "700",
+    letterSpacing: -0.5,
   },
   successSubtitle: {
-    marginTop: 8,
+    marginTop: 12,
     textAlign: "center",
-    color: "#6B7280",
+    color: "#64748B",
+    lineHeight: 24,
+    fontSize: 16,
   },
   successCard: {
     width: "100%",

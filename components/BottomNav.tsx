@@ -32,7 +32,7 @@ const DiscoverIcon = ({ active }: { active?: boolean }) => (
     style={styles.icon}
     fill="none"
     viewBox="0 0 24 24"
-    stroke={active ? "#2563EB" : "#6B7280"}
+    stroke={active ? "#6366F1" : "#94A3B8"}
     strokeWidth={2}
   >
     <Path
@@ -48,7 +48,7 @@ const FollowingIcon = ({ active }: { active?: boolean }) => (
     style={styles.icon}
     fill="none"
     viewBox="0 0 24 24"
-    stroke={active ? "#2563EB" : "#6B7280"}
+    stroke={active ? "#6366F1" : "#94A3B8"}
     strokeWidth={2}
   >
     <Path
@@ -64,7 +64,7 @@ const ProfileIcon = ({ active }: { active?: boolean }) => (
     style={styles.icon}
     fill="none"
     viewBox="0 0 24 24"
-    stroke={active ? "#2563EB" : "#6B7280"}
+    stroke={active ? "#6366F1" : "#94A3B8"}
     strokeWidth={2}
   >
     <Path
@@ -109,18 +109,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 64,
+    height: 72,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: "#E2E8F0",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+    paddingBottom: 8,
+    shadowColor: "#0F172A",
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
   navItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 8,
   },
   iconWrapper: {
     marginBottom: 4,
@@ -131,13 +141,14 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: "600",
+    letterSpacing: 0.2,
   },
   navLabelActive: {
-    color: "#2563EB",
+    color: "#6366F1",
   },
   navLabelInactive: {
-    color: "#374151",
+    color: "#94A3B8",
   },
   hiddenText: {
     height: 0,

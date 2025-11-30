@@ -1,3 +1,4 @@
+// DiscoverScreen.tsx
 import React, { useContext, useState, useMemo } from "react";
 import {
   View,
@@ -5,10 +6,15 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import { Text, Card, Button, Searchbar, Surface } from "react-native-paper";
+import { Text, Card, Button, Searchbar, Surface, useTheme, ActivityIndicator } from "react-native-paper";
 import { AppContext, Community, Event } from "../context/AppContext";
 import { haversineDistanceKm } from "../src/distance";
+import { theme } from "../src/theme";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width } = Dimensions.get("window");
 
 type EventCardProps = {
   event: Event;
@@ -38,47 +44,38 @@ const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
   }, [userCoords, event.latitude, event.longitude]);
 
   return (
-    <Card style={styles.eventCard} mode="contained">
-      <TouchableOpacity activeOpacity={0.85} onPress={onClick}>
-        <Card.Content style={styles.eventCardContent}>
+    <Card style={styles.eventCard} elevation={5}>
+      <TouchableOpacity activeOpacity={0.8} onPress={onClick}>
+        <LinearGradient
+          colors={[theme.colors.surface, theme.colors.surfaceVariant]}
+          style={styles.eventCardContent}
+        >
           <Image
             source={{ uri: event.imageUrl }}
             style={styles.eventImage}
             resizeMode="cover"
           />
           <View style={styles.eventInfo}>
-            <Text
-              variant="titleSmall"
-              style={styles.eventName}
-              numberOfLines={1}
-            >
+            <Text variant="headlineSmall" style={styles.eventName} numberOfLines={1}>
               {event.name}
             </Text>
-            <Text
-              variant="bodySmall"
-              style={styles.eventMeta}
-              numberOfLines={1}
-            >
+            <Text variant="bodyMedium" style={styles.eventMeta} numberOfLines={1}>
               {event.time}
             </Text>
-            <Text
-              variant="bodySmall"
-              style={styles.eventMeta}
-              numberOfLines={1}
-            >
+            <Text variant="bodyMedium" style={styles.eventMeta} numberOfLines={1}>
               {event.location}
             </Text>
             {distanceLabel ? (
-              <Text variant="labelSmall" style={styles.distanceLabel}>
+              <Text variant="labelLarge" style={styles.distanceLabel}>
                 {distanceLabel}
               </Text>
             ) : isLocatingUser ? (
-              <Text variant="labelSmall" style={styles.distanceLabel}>
-                Locating you...
+              <Text variant="labelMedium" style={styles.distanceLabel}>
+                Locating...
               </Text>
             ) : null}
           </View>
-        </Card.Content>
+        </LinearGradient>
       </TouchableOpacity>
     </Card>
   );
@@ -100,8 +97,8 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
   const buttonMode = isMember ? "outlined" : "contained";
 
   return (
-    <Card style={styles.communityCard} mode="contained">
-      <TouchableOpacity activeOpacity={0.85} onPress={onNavigate}>
+    <Card style={styles.communityCard} elevation={5}>
+      <TouchableOpacity activeOpacity={0.9} onPress={onNavigate}>
         <Image
           source={{ uri: community.imageUrl }}
           style={styles.communityImage}
@@ -111,25 +108,17 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 
       <Card.Content style={styles.communityContent}>
         <TouchableOpacity activeOpacity={0.7} onPress={onNavigate}>
-          <Text
-            variant="titleMedium"
-            style={styles.communityName}
-            numberOfLines={1}
-          >
+          <Text variant="headlineMedium" style={styles.communityName} numberOfLines={1}>
             {community.name}
           </Text>
         </TouchableOpacity>
 
-        <Text
-          variant="bodySmall"
-          style={styles.communityDescription}
-          numberOfLines={3}
-        >
+        <Text variant="bodyLarge" style={styles.communityDescription} numberOfLines={3}>
           {community.description}
         </Text>
 
-        <Text variant="bodySmall" style={styles.communityMeta}>
-          {community.memberCount} members
+        <Text variant="labelLarge" style={styles.communityMeta}>
+          {community.memberCount} {community.memberCount === 1 ? "member" : "members"}
         </Text>
 
         <Button
@@ -151,13 +140,15 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 };
 
 export default function DiscoverScreen() {
-  const [searchQuery, setSearchQuery] = useState("");
   const context = useContext(AppContext);
+  const theme = useTheme();
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (!context) {
     return (
-      <Surface style={styles.loadingContainer} elevation={0}>
-        <Text variant="bodyMedium" style={styles.loadingText}>
+      <Surface style={styles.loadingContainer} elevation={2}>
+        <ActivityIndicator animating size="large" />
+        <Text variant="bodyLarge" style={styles.loadingText}>
           Loading...
         </Text>
       </Surface>
@@ -165,50 +156,84 @@ export default function DiscoverScreen() {
   }
 
   const {
-    communities,
     events,
-    viewCommunity,
-    viewEvent,
+    communities,
     currentUser,
     toggleCommunityMembership,
-    userCoords,
-    isLocatingUser,
+    viewEvent,
+    viewCommunity,
   } = context;
 
-  const eventsNearYou = events.slice(0, 4);
-  const recommendedCommunities = communities;
+  const recommendedEvents = useMemo(() => {
+    return events.filter(
+      (event) => !currentUser?.signedUpEventIds.includes(event.id)
+    );
+  }, [events, currentUser?.signedUpEventIds]);
+
+  const recommendedCommunities = useMemo(() => {
+    return communities.filter(
+      (community) => !currentUser?.joinedCommunityIds.includes(community.id)
+    );
+  }, [communities, currentUser?.joinedCommunityIds]);
+
+  const filteredEvents = useMemo(() => {
+    const lowerQuery = searchQuery.toLowerCase();
+    return recommendedEvents.filter(
+      (event) =>
+        event.name.toLowerCase().includes(lowerQuery) ||
+        event.location.toLowerCase().includes(lowerQuery)
+    );
+  }, [recommendedEvents, searchQuery]);
+
+  const filteredCommunities = useMemo(() => {
+    const lowerQuery = searchQuery.toLowerCase();
+    return recommendedCommunities.filter(
+      (community) =>
+        community.name.toLowerCase().includes(lowerQuery) ||
+        community.description.toLowerCase().includes(lowerQuery)
+    );
+  }, [recommendedCommunities, searchQuery]);
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
+      nestedScrollEnabled={true}
     >
-      <View style={styles.headerRow}>
-        <Text variant="headlineLarge" style={styles.title}>
+      {/* Header */}
+      <View style={styles.headerSection}>
+        <Text variant="displayMedium" style={styles.title}>
           Discover
+        </Text>
+        <Text variant="bodyLarge" style={styles.subtitle}>
+          Find events and communities around you
         </Text>
       </View>
 
+      {/* Search */}
       <View style={styles.searchWrapper}>
         <Searchbar
-          placeholder="Search communities, events..."
-          value={searchQuery}
+          placeholder="Search events or communities"
           onChangeText={setSearchQuery}
+          value={searchQuery}
           style={styles.searchbar}
           inputStyle={styles.searchInput}
+          icon="magnify"
+          clearIcon="close-circle"
         />
       </View>
 
+      {/* Recommended Events – Horizontal */}
       <View style={styles.section}>
-        <Text variant="titleLarge" style={styles.sectionTitle}>
-          Events Near You
+        <Text variant="headlineMedium" style={styles.sectionTitle}>
+          Recommended Events
         </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalList}
         >
-          {eventsNearYou.map((event) => (
+          {filteredEvents.map((event) => (
             <EventCard
               key={event.id}
               event={event}
@@ -219,28 +244,42 @@ export default function DiscoverScreen() {
         </ScrollView>
       </View>
 
-      <View style={styles.section}>
-        <Text variant="titleLarge" style={styles.sectionTitle}>
-          Recommended Communities
+      {/* Suggested Communities – Independent Vertical Scroll (Instagram-style) */}
+      <View style={styles.communitySection}>
+        <Text variant="headlineMedium" style={styles.sectionTitle}>
+          Suggested Communities
         </Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalList}
-        >
-          {recommendedCommunities.map((community) => (
-            <CommunityCard
-              key={community.id}
-              community={community}
-              isMember={
-                currentUser?.joinedCommunityIds.includes(community.id) ?? false
-              }
-              onJoin={() => toggleCommunityMembership(community.id)}
-              onNavigate={() => viewCommunity(community.id)}
-            />
-          ))}
-          <View style={styles.horizontalSpacer} />
-        </ScrollView>
+
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.verticalList}>
+              {filteredCommunities.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Text variant="bodyLarge" style={styles.emptyText}>
+                    No communities found matching your search.
+                  </Text>
+                </View>
+              ) : (
+                filteredCommunities.map((community) => (
+                  <CommunityCard
+                    key={community.id}
+                    community={community}
+                    isMember={
+                      currentUser?.joinedCommunityIds.includes(community.id) ?? false
+                    }
+                    onJoin={() => toggleCommunityMembership(community.id)}
+                    onNavigate={() => viewCommunity(community.id)}
+                  />
+                ))
+              )}
+              {/* Bottom padding so last card isn't cut off */}
+              <View style={{ height: 120 }} />
+            </View>
+          </ScrollView>
+        </View>
       </View>
     </ScrollView>
   );
@@ -249,78 +288,136 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F9FAFB" },
   contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 32,
     paddingBottom: 32,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
+  headerSection: {
+    marginBottom: 32,
+    paddingHorizontal: 24,
   },
-  title: { color: "#111827", fontWeight: "700" },
-  searchWrapper: { marginBottom: 24 },
+  title: {
+    color: "#111827",
+    fontWeight: "bold",
+    letterSpacing: -1,
+    marginBottom: 12,
+  },
+  subtitle: {
+    color: "#6B7280",
+    lineHeight: 24,
+  },
+  searchWrapper: { marginBottom: 40, paddingHorizontal: 24 },
   searchbar: {
-    borderRadius: 999,
-    elevation: 0,
+    borderRadius: 20,
     backgroundColor: "#FFFFFF",
-    borderColor: "#E5E7EB",
+    borderColor: "#D1D5DB",
     borderWidth: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
   },
-  searchInput: { fontSize: 16 },
-  section: { marginBottom: 32 },
+  searchInput: { fontSize: 16, color: "#1F2937" },
+
+  section: { marginBottom: 48 },
+  communitySection: { 
+    flex: 1,
+    marginBottom: 48,
+  },
   sectionTitle: {
     color: "#111827",
-    fontWeight: "600",
-    marginBottom: 16,
-    paddingHorizontal: 4,
+    fontWeight: "bold",
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    fontSize: 24,
+    letterSpacing: -0.5,
   },
-  horizontalList: { paddingLeft: 4, paddingRight: 12 },
-  horizontalSpacer: { width: 12 },
-  eventCard: { width: 240, marginRight: 16, borderRadius: 18 },
+
+  horizontalList: { paddingLeft: 24, paddingRight: 0, paddingBottom: 26 },
+  horizontalSpacer: { width: 24 },
+
+  eventCard: {
+    width: width * 0.8,
+    marginRight: 16,
+    borderRadius: 28,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
+  },
   eventCardContent: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    padding: 24,
   },
-  eventImage: { width: 64, height: 64, borderRadius: 12 },
-  eventInfo: { flex: 1, marginLeft: 12 },
-  eventName: { color: "#1F2937", fontWeight: "600" },
-  eventMeta: { color: "#6B7280", marginTop: 4 },
-  distanceLabel: {
-    marginTop: 6,
-    color: "#2563EB",
-    fontWeight: "600",
-  },
+  eventImage: { width: 96, height: 96, borderRadius: 20 },
+  eventInfo: { flex: 1, marginLeft: 20 },
+  eventName: { color: "#111827", fontWeight: "bold", fontSize: 20, marginBottom: 8 },
+  eventMeta: { color: "#6B7280", marginTop: 4, fontSize: 14, lineHeight: 20 },
+  distanceLabel: { marginTop: 12, color: "#4F46E5", fontWeight: "bold", fontSize: 13 },
+
   communityCard: {
-    width: 288,
-    marginRight: 16,
-    borderRadius: 20,
+    width: "100%",
+    borderRadius: 28,
+    marginBottom: 24,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
   },
-  communityImage: { width: "100%", height: 148 },
-  communityContent: { paddingTop: 16 },
-  communityName: { color: "#111827", fontWeight: "700" },
+  communityImage: { width: "100%", height: 220 },
+  communityContent: { padding: 24 },
+  communityName: {
+    color: "#111827",
+    fontWeight: "bold",
+    fontSize: 22,
+    marginBottom: 12,
+    letterSpacing: -0.5,
+  },
   communityDescription: {
     color: "#6B7280",
     marginTop: 8,
-    minHeight: 44,
-    lineHeight: 18,
-  },
-  communityMeta: { color: "#9CA3AF", marginTop: 12 },
-  communityButton: { marginTop: 16 },
-  communityButtonContent: { height: 44 },
-  communityButtonLabelContained: {
+    minHeight: 60,
+    lineHeight: 24,
     fontSize: 15,
-    fontWeight: "600",
+  },
+  communityMeta: { color: "#9CA3AF", marginTop: 16, fontSize: 14, fontWeight: "500" },
+  communityButton: { marginTop: 24, borderRadius: 16 },
+  communityButtonContent: { height: 52 },
+  communityButtonLabelContained: {
+    fontSize: 16,
+    fontWeight: "bold",
     color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   communityButtonLabelOutlined: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#374151",
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#4B5563",
+    letterSpacing: 0.5,
   },
-  loadingContainer: { padding: 24, backgroundColor: "#F3F4F6" },
-  loadingText: { color: "#4B5563" },
+
+  verticalList: {
+    paddingHorizontal: 24,
+  },
+  emptyState: {
+    paddingVertical: 100,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#9CA3AF",
+    fontSize: 16,
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+  },
+  loadingText: {
+    marginTop: 16,
+    color: "#6B7280",
+  },
 });

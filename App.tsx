@@ -35,6 +35,9 @@ import {
   Button,
   FAB,
 } from "react-native-paper";
+import { Image } from "react-native";
+import logo from "./assets/togather-icon.png";
+
 import { theme } from "./src/theme";
 
 import { useUserLocation } from "./src/useUserLocation";
@@ -382,7 +385,7 @@ export default function App() {
               if (user) {
                 handleLogin(user);
               } else {
-                alert("Invalid credentials!");
+                alert("Invalid email or password. Please try again.");
               }
             }}
             onBack={() => setAuthScreen(AuthScreenType.Welcome)}
@@ -393,7 +396,7 @@ export default function App() {
           <SignUpScreen
             onSignUp={(email, password) => {
               if (users.some((u) => u.email === email)) {
-                alert("A user with this email already exists.");
+                alert("An account with this email already exists. Please sign in instead.");
                 return;
               }
               const partialUser = {
@@ -416,12 +419,10 @@ export default function App() {
             resizeMode="cover"
           >
             <View style={styles.welcomeOverlay}>
-              <PaperText variant="headlineMedium" style={styles.welcomeTitle}>
-                Welcome to Togather
-              </PaperText>
-              <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
+              <Image source={logo} style={styles.logoImage} resizeMode="contain" />
+              <PaperText variant="bodyLarge" style={styles.welcomeSubtitle}>
                 Explore campus communities and connect with people who share
-                your interests.
+                your interests
               </PaperText>
               <Button
                 mode="contained"
@@ -581,45 +582,56 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     color: "#FFFFFF",
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: "center",
-    fontWeight: "bold",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-    fontSize: 28,
+    fontWeight: "700",
+    textShadowColor: "rgba(0, 0, 0, 0.6)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+    fontSize: 36,
+    letterSpacing: -1,
+    lineHeight: 44,
   },
   welcomeSubtitle: {
     color: "#FFFFFF",
-    marginBottom: 32,
+    marginBottom: 40,
     textAlign: "center",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-    fontSize: 16,
-    lineHeight: 22,
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+    fontSize: 18,
+    lineHeight: 26,
+    paddingHorizontal: 32,
   },
   welcomeButton: {
     width: "100%",
-    maxWidth: 280,
-    marginBottom: 12,
-    backgroundColor: "#5B61FF",
-    borderRadius: 12,
+    maxWidth: 320,
+    marginBottom: 16,
+    backgroundColor: "#6366F1",
+    borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   welcomeButtonContent: {
-    height: 52,
+    height: 56,
+    paddingVertical: 4,
   },
   welcomeButtonLabel: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  logoImage: {
+    width: 240,
+    height: 100,
+    marginTop: 32,
+    alignSelf: "center",
   },
 });
