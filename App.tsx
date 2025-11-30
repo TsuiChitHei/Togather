@@ -99,6 +99,13 @@ export default function App() {
     setAuthScreen(AuthScreenType.Welcome);
   };
 
+  const handleScreenChange = (screen: Screen) => {
+    setViewingEvent(null);
+    setViewingCommunity(null);
+    setIsCreatingEvent(false);
+    setActiveScreen(screen);
+  };
+
   const updateUser = (updatedUser: User) => {
     if (currentUser && currentUser.id === updatedUser.id) {
       setCurrentUser(updatedUser);
@@ -503,7 +510,7 @@ export default function App() {
                 </View>
                 <BottomNav
                   activeScreen={activeScreen}
-                  setActiveScreen={setActiveScreen}
+                  setActiveScreen={handleScreenChange}
                 />
               </>
             )}
