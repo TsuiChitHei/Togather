@@ -1,4 +1,3 @@
-// Updated FollowingScreen.tsx (fixed missing styles: badge, authorDetails)
 import React, { useContext } from "react";
 import { View, ScrollView, StyleSheet, Image } from "react-native";
 import {
