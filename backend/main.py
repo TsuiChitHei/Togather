@@ -14,11 +14,11 @@ app = FastAPI()
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 
-# firebase_config_json = os.getenv("FIREBASE_ADMIN_CONFIG_JSON")
-# if firebase_config_json:
-#     cred = credentials.Certificate(json.loads(firebase_config_json))
-# else:
-cred = credentials.Certificate("firebaseAdminConfig.json")
+firebase_config_json = os.getenv("FIREBASE_ADMIN_CONFIG_JSON")
+if firebase_config_json:
+    cred = credentials.Certificate(json.loads(firebase_config_json))
+else:
+    cred = credentials.Certificate("firebaseAdminConfig.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
