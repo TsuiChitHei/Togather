@@ -18,3 +18,14 @@ export const createEventInDatabase = async (newEvent: Event) => {
   });
   return response.json();
 };
+
+export const updateEventInDatabase = async (updatedEvent: Event) => {
+  const response = await fetch(`${API_URL}/events/${updatedEvent.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEvent),
+  });
+  return response.json();
+};

@@ -13,6 +13,7 @@ import { getAllUsers } from "./api/user";
 import { getAllCommunities, updateCommunityInDatabase } from "./api/community";
 import { getAllEvents } from "./api/event";
 import { getAllPosts } from "./api/post";
+import { updateEventInDatabase } from "./api/event";
 
 import ProfileSetupScreen from "./screens/ProfileSetupScreen";
 import DiscoverScreen from "./screens/DiscoverScreen";
@@ -122,6 +123,7 @@ export default function App() {
     setUsers((prev) =>
       prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
     );
+    updateUserInDatabase(updatedUser);
 
     setCommunities((prev) =>
       prev.map((c) =>
@@ -129,10 +131,29 @@ export default function App() {
           ? {
               ...c,
               memberCount: isMember ? c.memberCount - 1 : c.memberCount + 1,
+              members: isMember
+                ? c.members.filter((id) => id !== currentUser.id)
+                : [...c.members, currentUser.id],
             }
           : c
       )
     );
+
+    const currentCommunity = communities.find((c) => c.id === communityId);
+    const updatedCommunity: Community | null = currentCommunity
+      ? {
+          ...currentCommunity,
+          memberCount: isMember
+            ? currentCommunity.memberCount - 1
+            : currentCommunity.memberCount + 1,
+          members: isMember
+            ? currentCommunity.members.filter((id) => id !== currentUser.id)
+            : [...currentCommunity.members, currentUser.id],
+        }
+      : null;
+    if (updatedCommunity) {
+      updateCommunityInDatabase(updatedCommunity);
+    }
   };
 
   const toggleEventSignup = (eventId: string) => {
@@ -149,6 +170,7 @@ export default function App() {
     setUsers((prev) =>
       prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
     );
+    updateUserInDatabase(updatedUser);
 
     setEvents((prev) =>
       prev.map((e) =>
@@ -162,6 +184,18 @@ export default function App() {
           : e
       )
     );
+    const currentEvent = events.find((e) => e.id === eventId);
+    const updatedEvent: Event | null = currentEvent
+      ? {
+          ...currentEvent,
+          attendees: isSignedUp
+            ? currentEvent.attendees.filter((id) => id !== currentUser.id)
+            : [...currentEvent.attendees, currentUser.id],
+        }
+      : null;
+    if (updatedEvent) {
+      updateEventInDatabase(updatedEvent);
+    }
   };
 
   const handleCreateEvent = useCallback(

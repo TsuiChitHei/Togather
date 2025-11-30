@@ -354,3 +354,11 @@ def create_event(event: Event):
 def create_post(post: Post):
     _, doc_ref = db.collection("posts").add(post.model_dump())
     return {"message": "Post created successfully", "post_id": doc_ref.id}
+
+@app.patch("/events/{event_id}")
+def update_event(event_id: str, updatedEvent: Event):
+    event_list = db.collection("events")
+    event_snapshot = event_list.where("id", "==", event_id).get()[0]
+    event_ref = db.collection("events").document(event_snapshot.id)
+    event_ref.update(updatedEvent.model_dump())
+    return {"message": "Event updated successfully"}
