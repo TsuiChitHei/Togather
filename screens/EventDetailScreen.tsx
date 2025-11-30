@@ -1,4 +1,10 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   View,
   Image,
@@ -128,6 +134,7 @@ export default function EventDetailScreen({
   const { currentUser, toggleEventSignup, users } = context;
 
   const isSignedUp = currentUser?.signedUpEventIds.includes(event.id);
+
   const eventAttendees = users.filter((u) => event.attendees.includes(u.id));
 
   return (

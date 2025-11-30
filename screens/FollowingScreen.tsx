@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet, Image } from "react-native";
 import {
   Text,
@@ -32,7 +27,19 @@ type MatchPayload = {
 const SAMPLE_MATCHES: MatchPayload[] = [
   {
     id: "match-sample-1",
-    event: { id: 'event-1', name: 'The Peak Social Hike', time: 'Today, 5pm', location: 'Sai Ying Pun MTR Exit A2', communityId: 'comm-1', description: 'Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We\'ll meet at the MTR exit and head up together. All fitness levels welcome.', imageUrl: 'https://picsum.photos/seed/hike/200/200', attendees: ['user-2', 'user-3'], latitude: 22.283057, longitude: 114.1354754},
+    event: {
+      id: "event-1",
+      name: "The Peak Social Hike",
+      time: "Today, 5pm",
+      location: "Sai Ying Pun MTR Exit A2",
+      communityId: "comm-1",
+      description:
+        "Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We'll meet at the MTR exit and head up together. All fitness levels welcome.",
+      imageUrl: "https://picsum.photos/seed/hike/200/200",
+      attendees: ["user-2", "user-3"],
+      latitude: 22.283057,
+      longitude: 114.1354754,
+    },
     matchUser: {
       id: "user-98",
       name: "Alex Rivers",
@@ -41,12 +48,10 @@ const SAMPLE_MATCHES: MatchPayload[] = [
       major: "Marketing",
       headline: "Final-year marketing major who never misses a hike.",
     },
-    description:
-      "You both share a love for sunrise trails and photography.",
+    description: "You both share a love for sunrise trails and photography.",
     compatibilityLabel: "Trail vibes",
   },
 ];
-
 
 const MatchmakingCard = ({ match }: { match: MatchPayload }) => {
   const context = useContext(AppContext);
@@ -56,54 +61,52 @@ const MatchmakingCard = ({ match }: { match: MatchPayload }) => {
   const { viewEvent } = context;
 
   return (
-<Card style={styles.postCard} mode="contained">
-  <Card.Content>
-    {/* Header row */}
-    <View style={styles.eventMetaRow}>
-      <Text variant="labelSmall" style={styles.eventBadge}>
-        Match update
-      </Text>
-      <Text variant="bodySmall" style={styles.eventTimestamp}>
-        {match.event.time}
-      </Text>
-    </View>
-
-    {/* Event name */}
-    <Text variant="bodySmall" style={styles.eventContext}>
-      {match.event.name}
-    </Text>
-
-    {/* Pressable body */}
-    <TouchableRipple
-      rippleColor={theme.colors.surfaceDisabled}
-      onPress={() => viewEvent(match.event.id)}
-      borderless={false}
-    >
-      <View style={styles.eventCardBody}>
-        <Avatar.Image
-          source={{ uri: match.matchUser.avatarUrl }}
-          size={56}
-          style={styles.matchAvatar}
-        />
-        <View style={styles.eventInfo}>
-          <Text variant="titleMedium" style={styles.matchName}>
-            {match.matchUser.name}
+    <Card style={styles.postCard} mode="contained">
+      <Card.Content>
+        {/* Header row */}
+        <View style={styles.eventMetaRow}>
+          <Text variant="labelSmall" style={styles.eventBadge}>
+            Match update
           </Text>
-          <Text variant="bodyMedium" style={styles.matchDescription}>
-            {match.description}
+          <Text variant="bodySmall" style={styles.eventTimestamp}>
+            {match.event.time}
           </Text>
         </View>
-        <View style={styles.eventChevron} pointerEvents="none">
-          <Text style={styles.eventChevronText}>›</Text>
-        </View>
-      </View>
-    </TouchableRipple>
-  </Card.Content>
-</Card>
+
+        {/* Event name */}
+        <Text variant="bodySmall" style={styles.eventContext}>
+          {match.event.name}
+        </Text>
+
+        {/* Pressable body */}
+        <TouchableRipple
+          rippleColor={theme.colors.surfaceDisabled}
+          onPress={() => viewEvent(match.event.id)}
+          borderless={false}
+        >
+          <View style={styles.eventCardBody}>
+            <Avatar.Image
+              source={{ uri: match.matchUser.avatarUrl }}
+              size={56}
+              style={styles.matchAvatar}
+            />
+            <View style={styles.eventInfo}>
+              <Text variant="titleMedium" style={styles.matchName}>
+                {match.matchUser.name}
+              </Text>
+              <Text variant="bodyMedium" style={styles.matchDescription}>
+                {match.description}
+              </Text>
+            </View>
+            <View style={styles.eventChevron} pointerEvents="none">
+              <Text style={styles.eventChevronText}>›</Text>
+            </View>
+          </View>
+        </TouchableRipple>
+      </Card.Content>
+    </Card>
   );
 };
-
-
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const context = useContext(AppContext);
@@ -121,40 +124,48 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
     if (!event) return null;
 
     return (
-<Card style={styles.postCard} mode="contained">
-  <Card.Content>
-    <View style={styles.eventMetaRow}>
-      <Text variant="labelSmall" style={styles.eventBadge}>Event drop</Text>
-      <Text variant="bodySmall" style={styles.eventTimestamp}>{post.timestamp}</Text>
-    </View>
+      <Card style={styles.postCard} mode="contained">
+        <Card.Content>
+          <View style={styles.eventMetaRow}>
+            <Text variant="labelSmall" style={styles.eventBadge}>
+              Event drop
+            </Text>
+            <Text variant="bodySmall" style={styles.eventTimestamp}>
+              {post.timestamp}
+            </Text>
+          </View>
 
-    <TouchableRipple
-      rippleColor={theme.colors.surfaceDisabled}
-      onPress={() => viewEvent(event.id)}
-      borderless={false}
-    >
-      <View style={styles.eventCardBody}>
-        {event.imageUrl ? (
-          <Image
-            source={{ uri: event.imageUrl }}
-            style={styles.eventImage}
-            resizeMode="cover"
-          />
-        ) : null}
-        <View style={styles.eventInfo}>
-          <Text variant="titleSmall" style={styles.eventTitle}>{event.name}</Text>
-          <Text variant="bodySmall" style={styles.eventMeta}>{event.time}</Text>
-          <Text variant="bodySmall" style={styles.eventMeta}>{event.location}</Text>
-        </View>
-        <View style={styles.eventChevron} pointerEvents="none">
-          <Text style={styles.eventChevronText}>›</Text>
-        </View>
-      </View>
-    </TouchableRipple>
-  </Card.Content>
-</Card>
-
-
+          <TouchableRipple
+            rippleColor={theme.colors.surfaceDisabled}
+            onPress={() => viewEvent(event.id)}
+            borderless={false}
+          >
+            <View style={styles.eventCardBody}>
+              {event.imageUrl ? (
+                <Image
+                  source={{ uri: event.imageUrl }}
+                  style={styles.eventImage}
+                  resizeMode="cover"
+                />
+              ) : null}
+              <View style={styles.eventInfo}>
+                <Text variant="titleSmall" style={styles.eventTitle}>
+                  {event.name}
+                </Text>
+                <Text variant="bodySmall" style={styles.eventMeta}>
+                  {event.time}
+                </Text>
+                <Text variant="bodySmall" style={styles.eventMeta}>
+                  {event.location}
+                </Text>
+              </View>
+              <View style={styles.eventChevron} pointerEvents="none">
+                <Text style={styles.eventChevronText}>›</Text>
+              </View>
+            </View>
+          </TouchableRipple>
+        </Card.Content>
+      </Card>
     );
   }
 
@@ -193,8 +204,8 @@ export default function FollowingScreen() {
     );
   }
 
-  const { currentUser, events } = context;
-  const followedPosts = MOCK_POSTS.filter((post) =>
+  const { currentUser, events, posts } = context;
+  const followedPosts = posts.filter((post) =>
     currentUser.joinedCommunityIds.includes(post.communityId)
   );
   const joinedEvents = events.filter((event) =>
@@ -226,7 +237,8 @@ export default function FollowingScreen() {
               Nothing to see yet
             </Text>
             <Text variant="bodyMedium" style={styles.feedEmptySubtitle}>
-              Join a few communities on the Discover page to start building your feed.
+              Join a few communities on the Discover page to start building your
+              feed.
             </Text>
           </View>
         ) : null}
@@ -295,7 +307,7 @@ const styles = StyleSheet.create({
   eventContext: {
     marginTop: 4,
     marginBottom: 12,
-    color: '#6b6b6b',
+    color: "#6b6b6b",
   },
   eventBadge: {
     backgroundColor: "#EEF2FF",

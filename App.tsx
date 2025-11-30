@@ -86,6 +86,26 @@ export default function App() {
     permissionDenied,
   } = useUserLocation();
 
+  useEffect(() => {
+    if (viewingCommunity) {
+      const updatedCommunity = communities.find(
+        (c) => c.id === viewingCommunity.id
+      );
+      if (updatedCommunity) {
+        setViewingCommunity(updatedCommunity);
+      }
+    }
+  }, [communities, viewingCommunity]);
+
+  useEffect(() => {
+    if (viewingEvent) {
+      const updatedEvent = events.find((e) => e.id === viewingEvent.id);
+      if (updatedEvent) {
+        setViewingEvent(updatedEvent);
+      }
+    }
+  }, [events, viewingEvent]);
+
   const handleLogin = (user: User) => {
     setCurrentUser(user);
     setActiveScreen(Screen.Discover);
