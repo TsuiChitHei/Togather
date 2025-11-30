@@ -165,16 +165,12 @@ export default function DiscoverScreen() {
   } = context;
 
   const recommendedEvents = useMemo(() => {
-    return events.filter(
-      (event) => !currentUser?.signedUpEventIds.includes(event.id)
-    );
-  }, [events, currentUser?.signedUpEventIds]);
+    return events;
+  }, [events]);
 
   const recommendedCommunities = useMemo(() => {
-    return communities.filter(
-      (community) => !currentUser?.joinedCommunityIds.includes(community.id)
-    );
-  }, [communities, currentUser?.joinedCommunityIds]);
+    return communities;
+  }, [communities]);
 
   const filteredEvents = useMemo(() => {
     const lowerQuery = searchQuery.toLowerCase();
