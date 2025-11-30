@@ -215,6 +215,28 @@ class Community(BaseModel):
     members: Optional[List[str]] = None
     postIds: Optional[List[str]] = None
 
+class Event(BaseModel):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    time: Optional[str] = None
+    location: Optional[str] = None
+    communityId: Optional[str] = None
+    description: Optional[str] = None
+    imageUrl: Optional[str] = None
+    attendees: Optional[List[str]] = None
+    longitude: Optional[float] = None
+    latitude: Optional[float] = None
+
+class Post(BaseModel):
+    id: Optional[str] = None
+    type: Optional[str] = None
+    authorId: Optional[str] = None
+    communityId: Optional[str] = None
+    timestamp: Optional[str] = None
+    eventId: Optional[str] = None
+    content: Optional[str] = None
+
+
 @app.get("/")
 def health_check():
     return {"message": "Server is running"}
@@ -322,3 +344,13 @@ def find_similar_users(request: Request):
 def create_user(user: User):
     _, doc_ref = db.collection("users").add(user.model_dump())
     return {"message": "User created successfully", "user_id": doc_ref.id}
+
+@app.post("/events")
+def create_event(event: Event):
+    _, doc_ref = db.collection("events").add(event.model_dump())
+    return {"message": "Event created successfully", "event_id": doc_ref.id}
+
+@app.post("/posts")
+def create_post(post: Post):
+    _, doc_ref = db.collection("posts").add(post.model_dump())
+    return {"message": "Post created successfully", "post_id": doc_ref.id}

@@ -10,7 +10,7 @@ import {
   CreateEventInput,
 } from "./context/AppContext";
 import { getAllUsers } from "./api/user";
-import { getAllCommunities } from "./api/community";
+import { getAllCommunities, updateCommunityInDatabase } from "./api/community";
 import { getAllEvents } from "./api/event";
 import { getAllPosts } from "./api/post";
 
@@ -26,6 +26,8 @@ import SignUpScreen from "./screens/SignUpScreen";
 import CreateEventScreen from "./screens/CreateEventScreen";
 import { Screen, AuthScreenType } from "./types";
 import { createUserInDatabase, updateUserInDatabase } from "./api/user";
+import { createEventInDatabase } from "./api/event";
+import { createPostInDatabase } from "./api/post";
 import {
   Provider as PaperProvider,
   Text as PaperText,
@@ -188,33 +190,67 @@ export default function App() {
       };
 
       const timestamp = "Just now";
+
+      const newPost: Post = {
+        id: `post-${Date.now()}`,
+        type: "event",
+        authorId: currentUser.id,
+        communityId: input.communityId,
+        timestamp,
+        eventId,
+      };
+
       const updatedUser: User = {
         ...currentUser,
         signedUpEventIds: currentUser.signedUpEventIds.includes(eventId)
           ? currentUser.signedUpEventIds
           : [...currentUser.signedUpEventIds, eventId],
+        postIds: currentUser.postIds.includes(newPost.id)
+          ? currentUser.postIds
+          : [...currentUser.postIds, newPost.id],
       };
 
+      const currentCommunity = communities.find(
+        (c) => c.id === input.communityId
+      );
+      const updatedCommunity: Community | null = currentCommunity
+        ? {
+            ...currentCommunity,
+            postIds: currentCommunity.postIds.includes(newPost.id)
+              ? currentCommunity.postIds
+              : [...currentCommunity.postIds, newPost.id],
+          }
+        : null;
+
+      if (updatedCommunity) {
+        updateCommunityInDatabase(updatedCommunity);
+        setCommunities((prev) =>
+          prev.map((c) => (c.id === updatedCommunity.id ? updatedCommunity : c))
+        );
+      }
+
       setEvents((prev) => [newEvent, ...prev]);
-      setPosts((prev) => [
-        {
-          id: `post-${Date.now()}`,
-          type: "event",
-          authorId: currentUser.id,
-          communityId: input.communityId,
-          timestamp,
-          eventId,
-        },
-        ...prev,
-      ]);
+
+      createEventInDatabase(newEvent);
+
+      setPosts((prev) => [newPost, ...prev]);
+      createPostInDatabase(newPost);
       setCurrentUser(updatedUser);
       setUsers((prev) =>
         prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
       );
+      updateUserInDatabase(updatedUser);
+
+      if (updatedCommunity) {
+        setCommunities((prev) =>
+          prev.map((c) => (c.id === updatedCommunity.id ? updatedCommunity : c))
+        );
+        updateCommunityInDatabase(updatedCommunity);
+      }
 
       return newEvent;
     },
-    [currentUser]
+    [currentUser, communities]
   );
 
   const appContextValue: AppContextType = useMemo(
@@ -313,8 +349,8 @@ export default function App() {
       case AuthScreenType.Welcome:
       default:
         return (
-          <ImageBackground 
-            source={require('./assets/Login Background Image.png')}
+          <ImageBackground
+            source={require("./assets/Login Background Image.png")}
             style={styles.welcomeContainer}
             resizeMode="cover"
           >
@@ -323,8 +359,8 @@ export default function App() {
                 Welcome to Togather
               </PaperText>
               <PaperText variant="bodyMedium" style={styles.welcomeSubtitle}>
-                Explore campus communities and connect with people who share your
-                interests.
+                Explore campus communities and connect with people who share
+                your interests.
               </PaperText>
               <Button
                 mode="contained"
@@ -479,15 +515,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   welcomeTitle: {
     color: "#FFFFFF",
     marginBottom: 12,
     textAlign: "center",
     fontWeight: "bold",
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
     fontSize: 28,
@@ -496,7 +532,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     marginBottom: 32,
     textAlign: "center",
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
     fontSize: 16,
