@@ -89,6 +89,26 @@ export default function App() {
     permissionDenied,
   } = useUserLocation();
 
+  useEffect(() => {
+    if (viewingCommunity) {
+      const updatedCommunity = communities.find(
+        (c) => c.id === viewingCommunity.id
+      );
+      if (updatedCommunity) {
+        setViewingCommunity(updatedCommunity);
+      }
+    }
+  }, [communities, viewingCommunity]);
+
+  useEffect(() => {
+    if (viewingEvent) {
+      const updatedEvent = events.find((e) => e.id === viewingEvent.id);
+      if (updatedEvent) {
+        setViewingEvent(updatedEvent);
+      }
+    }
+  }, [events, viewingEvent]);
+
   const handleLogin = (user: User) => {
     setCurrentUser(user);
     setActiveScreen(Screen.Discover);
@@ -100,6 +120,13 @@ export default function App() {
     setViewingEvent(null);
     setIsCreatingEvent(false);
     setAuthScreen(AuthScreenType.Welcome);
+  };
+
+  const handleScreenChange = (screen: Screen) => {
+    setViewingEvent(null);
+    setViewingCommunity(null);
+    setIsCreatingEvent(false);
+    setActiveScreen(screen);
   };
 
   const updateUser = (updatedUser: User) => {
@@ -504,7 +531,7 @@ export default function App() {
                 </View>
                 <BottomNav
                   activeScreen={activeScreen}
-                  setActiveScreen={setActiveScreen}
+                  setActiveScreen={handleScreenChange}
                 />
               </>
             )}

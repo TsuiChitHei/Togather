@@ -38,6 +38,19 @@ const SAMPLE_MATCHES: MatchPayload[] = [
       latitude: 22.283057,
       longitude: 114.1354754,
     },
+    event: {
+      id: "event-1",
+      name: "The Peak Social Hike",
+      time: "Today, 5pm",
+      location: "Sai Ying Pun MTR Exit A2",
+      communityId: "comm-1",
+      description:
+        "Join us for a scenic hike up The Peak! A great way to meet new people and enjoy the amazing Hong Kong skyline. We'll meet at the MTR exit and head up together. All fitness levels welcome.",
+      imageUrl: "https://picsum.photos/seed/hike/200/200",
+      attendees: ["user-2", "user-3"],
+      latitude: 22.283057,
+      longitude: 114.1354754,
+    },
     matchUser: {
       id: "user-98",
       name: "Alex Rivers",
@@ -46,6 +59,7 @@ const SAMPLE_MATCHES: MatchPayload[] = [
       major: "Marketing",
       headline: "Final-year marketing major who never misses a hike.",
     },
+    description: "You both share a love for sunrise trails and photography.",
     description: "You both share a love for sunrise trails and photography.",
     compatibilityLabel: "Trail vibes",
   },
@@ -196,8 +210,8 @@ export default function FollowingScreen() {
     );
   }
 
-  const { currentUser, events } = context;
-  const followedPosts = MOCK_POSTS.filter((post) =>
+  const { currentUser, events, posts } = context;
+  const followedPosts = posts.filter((post) =>
     currentUser.joinedCommunityIds.includes(post.communityId)
   );
   const joinedEvents = events.filter((event) =>
