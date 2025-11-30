@@ -1,6 +1,6 @@
 import { Post } from "../context/AppContext";
 
-const API_URL = "http://192.168.1.235:8000";
+const API_URL = "https://togather-y3c5.onrender.com";
 
 export const getAllPosts = async () => {
   const response = await fetch(`${API_URL}/posts`);
