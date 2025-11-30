@@ -1,5 +1,6 @@
+// Updated ProfileSetupScreen.tsx
 import React, { useState, useMemo } from "react";
-import { View, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, ScrollView, StyleSheet, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import {
   Text,
   TextInput,
@@ -9,8 +10,11 @@ import {
   useTheme,
   ProgressBar,
   Divider,
+  Surface,
 } from "react-native-paper";
 import { User } from "../context/AppContext";
+import { LinearGradient } from "expo-linear-gradient"; // Added for gradients
+import { theme } from "../src/theme"
 
 interface ProfileSetupScreenProps {
   pendingUser: Partial<User>;
@@ -34,7 +38,6 @@ export default function ProfileSetupScreen({
   onProfileCreated,
   onBack,
 }: ProfileSetupScreenProps) {
-  const theme = useTheme();
   const [step, setStep] = useState<1 | 2>(1);
 
   const [name, setName] = useState("");
@@ -58,7 +61,7 @@ export default function ProfileSetupScreen({
 
   const handleContinue = () => {
     if (!name.trim() || !major.trim() || !hometown.trim() || !bio.trim()) {
-      Alert.alert("Heads up", "Please complete all public profile fields.");
+      Alert.alert("Required", "Please complete all public profile fields.");
       return;
     }
     setStep(2);
@@ -66,7 +69,7 @@ export default function ProfileSetupScreen({
 
   const handleComplete = () => {
     if (!prompt1.trim() || !prompt2.trim()) {
-      Alert.alert("Heads up", "Please answer both private prompts.");
+      Alert.alert("Required", "Please answer both private prompts.");
       return;
     }
 
@@ -108,11 +111,11 @@ export default function ProfileSetupScreen({
           onPress={() => setYear(typeof item === "number" ? item : 6)}
           style={[
             styles.yearChip,
-            isSelected && { backgroundColor: theme.colors.primary },
+            isSelected && { backgroundColor: theme.colors.primaryContainer },
           ]}
           textStyle={[
             styles.yearChipText,
-            isSelected && { color: theme.colors.onPrimary },
+            isSelected && { color: theme.colors.onPrimaryContainer },
           ]}
         >
           {item}
@@ -125,112 +128,126 @@ export default function ProfileSetupScreen({
       <View style={styles.backRow}>
         <IconButton
           icon="arrow-left"
-          size={24}
-          mode="contained-tonal"
+          size={28}
+          mode="contained"
           onPress={onBack}
           style={styles.backButton}
-          containerColor="rgba(17,24,39,0.08)"
-          iconColor={theme.colors.onSurface}
+          containerColor={theme.colors.surface}
+          iconColor={theme.colors.textPrimary}
         />
       </View>
-      <Text variant="headlineMedium" style={styles.heading}>
-        Let's talk about you!
-      </Text>
-      <Text variant="titleMedium" style={styles.subheading}>
-        Public Section
-      </Text>
-      <Text variant="bodyMedium" style={styles.description}>
-        How will you introduce yourself to others?
-      </Text>
+      <View style={styles.headerSection}>
+        <Text variant="displayMedium" style={styles.heading}>
+          Let's get to know you
+        </Text>
+        <Text variant="headlineSmall" style={styles.subheading}>
+          Public Profile
+        </Text>
+        <Text variant="bodyLarge" style={styles.description}>
+          Share information that others will see on your profile
+        </Text>
+      </View>
 
-      <View style={styles.fieldGroup}>
-        <TextInput
-          label="Name"
-          mode="outlined"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-        />
+      <Surface style={styles.formContainer} elevation={5}>
+        <View style={styles.fieldGroup}>
+          <Text variant="labelLarge" style={styles.label}>
+            Name
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="account" />}
+          />
 
-        <View>
-          <Text variant="labelMedium" style={styles.label}>
+          <Text variant="labelLarge" style={styles.label}>
             Year
           </Text>
-          <View style={styles.yearRow}>{renderYearChips()}</View>
-        </View>
+          <View style={styles.yearRow}>
+            {renderYearChips()}
+          </View>
 
-        <TextInput
-          label="Faculty"
-          mode="outlined"
-          value={faculty}
-          onChangeText={setFaculty}
-          style={styles.input}
-        />
+          <Text variant="labelLarge" style={styles.label}>
+            Faculty
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={faculty}
+            onChangeText={setFaculty}
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="school" />}
+          />
 
-        <TextInput
-          label="Major(s)"
-          mode="outlined"
-          value={major}
-          onChangeText={setMajor}
-          style={styles.input}
-        />
+          <Text variant="labelLarge" style={styles.label}>
+            Major
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={major}
+            onChangeText={setMajor}
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="book-open-variant" />}
+          />
 
-        <TextInput
-          label="Hometown"
-          mode="outlined"
-          value={hometown}
-          onChangeText={setHometown}
-          style={styles.input}
-        />
+          <Text variant="labelLarge" style={styles.label}>
+            Hometown
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={hometown}
+            onChangeText={setHometown}
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="home-city" />}
+          />
 
-        <View>
-          <Text variant="labelMedium" style={styles.label}>
-            Interests / Hobbies
+          <Text variant="labelLarge" style={styles.label}>
+            Interests
           </Text>
           <View style={styles.interestRow}>
-            {interestOptions.map((interest) => {
-              const selected = interests.includes(interest);
-              return (
-                <Chip
-                  key={interest}
-                  onPress={() => handleToggleInterest(interest)}
-                  selected={selected}
-                  style={[
-                    styles.interestChip,
-                    selected && { backgroundColor: theme.colors.primary },
-                  ]}
-                  textStyle={[
-                    styles.interestChipText,
-                    selected && { color: theme.colors.onPrimary },
-                  ]}
-                >
-                  {interest}
-                </Chip>
-              );
-            })}
+            {interestOptions.map((interest) => (
+              <Chip
+                key={interest}
+                selected={interests.includes(interest)}
+                onPress={() => handleToggleInterest(interest)}
+                style={styles.interestChip}
+                textStyle={styles.interestChipText}
+                icon={interests.includes(interest) ? "check" : undefined}
+              >
+                {interest}
+              </Chip>
+            ))}
           </View>
+
+          <Text variant="labelLarge" style={styles.label}>
+            Bio
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={bio}
+            onChangeText={setBio}
+            multiline
+            numberOfLines={4}
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            left={<TextInput.Icon icon="note-text" />}
+          />
         </View>
 
-        <TextInput
-          label="Bio"
-          mode="outlined"
-          value={bio}
-          onChangeText={setBio}
-          multiline
-          numberOfLines={4}
-          style={styles.input}
-        />
-      </View>
-
-      <Button
-        mode="contained"
-        onPress={handleContinue}
-        style={styles.primaryButton}
-        contentStyle={styles.primaryButtonContent}
-        labelStyle={styles.primaryButtonLabel}
-      >
-        Continue
-      </Button>
+        <Button
+          mode="contained"
+          onPress={handleContinue}
+          style={styles.primaryButton}
+          contentStyle={styles.primaryButtonContent}
+          labelStyle={styles.primaryButtonLabel}
+        >
+          Continue
+        </Button>
+      </Surface>
     </View>
   );
 
@@ -239,164 +256,248 @@ export default function ProfileSetupScreen({
       <View style={styles.backRow}>
         <IconButton
           icon="arrow-left"
-          size={24}
-          mode="contained-tonal"
+          size={28}
+          mode="contained"
           onPress={() => setStep(1)}
-          containerColor="rgba(17,24,39,0.08)"
+          style={styles.backButton}
+          containerColor={theme.colors.surface}
+          iconColor={theme.colors.textPrimary}
         />
-        <Text variant="titleMedium" style={styles.backLabel}>
-          Back
+      </View>
+      <View style={styles.headerSection}>
+        <Text variant="displayMedium" style={styles.heading}>
+          A bit more about you
+        </Text>
+        <Text variant="headlineSmall" style={styles.subheading}>
+          Private Prompts
+        </Text>
+        <Text variant="bodyLarge" style={styles.description}>
+          These help us match you better. Not visible to others.
         </Text>
       </View>
 
-      <Text variant="headlineMedium" style={styles.heading}>
-        Just a little more...
-      </Text>
-      <Text variant="titleMedium" style={styles.subheading}>
-        Private Section
-      </Text>
-      <Text variant="bodyMedium" style={styles.description}>
-        This is only used for matchmaking and won’t be shown to others.
-      </Text>
+      <Surface style={styles.formContainer} elevation={5}>
+        <View style={styles.fieldGroup}>
+          <Text variant="labelLarge" style={styles.label}>
+            Something unique about me...
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={prompt1}
+            onChangeText={setPrompt1}
+            placeholder="e.g., I can juggle while coding"
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            multiline
+            numberOfLines={3}
+          />
 
-      <View style={styles.fieldGroup}>
-        <TextInput
-          label="A perfect weekend for me is..."
-          mode="outlined"
-          value={prompt1}
-          onChangeText={setPrompt1}
-          placeholder="e.g., exploring a new hiking trail"
-          style={styles.input}
-        />
+          <Text variant="labelLarge" style={styles.label}>
+            I'm looking for friends who are...
+          </Text>
+          <TextInput
+            mode="outlined"
+            value={prompt2}
+            onChangeText={setPrompt2}
+            placeholder="e.g., adventurous and love coffee chats"
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            multiline
+            numberOfLines={3}
+          />
+        </View>
 
-        <TextInput
-          label="I'm looking for friends who are..."
-          mode="outlined"
-          value={prompt2}
-          onChangeText={setPrompt2}
-          placeholder="e.g., open-minded and love to laugh"
-          style={styles.input}
-        />
-      </View>
-
-      <Button
-        mode="contained"
-        onPress={handleComplete}
-        style={styles.primaryButton}
-        contentStyle={styles.primaryButtonContent}
-        labelStyle={styles.primaryButtonLabel}
-      >
-        Complete Profile
-      </Button>
+        <Button
+          mode="contained"
+          onPress={handleComplete}
+          style={styles.primaryButton}
+          contentStyle={styles.primaryButtonContent}
+          labelStyle={styles.primaryButtonLabel}
+        >
+          Complete Profile
+        </Button>
+      </Surface>
     </View>
   );
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="handled"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.progressWrapper}>
-        <ProgressBar progress={progress} color={theme.colors.primary} />
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={[theme.colors.gradientPrimaryStart, theme.colors.gradientPrimaryEnd]}
+          style={styles.progressWrapper}
+        >
+          <View style={styles.progressContainer}>
+            <ProgressBar 
+              progress={progress} 
+              color={theme.colors.onPrimary} 
+              style={styles.progressBar}
+            />
+            <Text variant="labelMedium" style={[styles.progressText, { color: theme.colors.inversePrimary }]}>
+              Step {step} of 2
+            </Text>
+          </View>
+        </LinearGradient>
 
-      {step === 1 ? renderPublicSection() : renderPrivateSection()}
-      <Divider style={styles.bottomSpacer} />
-    </ScrollView>
+        {step === 1 ? renderPublicSection() : renderPrivateSection()}
+        <Divider style={styles.bottomSpacer} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9FAFB",
   },
   contentContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 40,
+    paddingBottom: 64,
   },
   progressWrapper: {
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+  },
+  progressContainer: {
+    gap: 12,
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+  },
+  progressText: {
+    textAlign: "right",
+    fontWeight: "bold",
+  },
+  formContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 28,
+    padding: 32,
+    marginHorizontal: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  inputOutline: {
+    borderWidth: 1,
+    borderRadius: 16,
   },
   section: {
     flex: 1,
+    paddingTop: 32,
+  },
+  headerSection: {
+    marginBottom: 40,
+    paddingHorizontal: 24,
   },
   heading: {
     color: "#111827",
-    fontWeight: "700",
+    fontWeight: "bold",
+    letterSpacing: -1,
+    marginBottom: 16,
   },
   subheading: {
-    color: "#1F2937",
+    color: "#4B5563",
     marginTop: 8,
+    fontWeight: "bold",
   },
   description: {
-    color: "#4B5563",
+    color: "#6B7280",
     marginTop: 12,
-    marginBottom: 20,
-    lineHeight: 20,
+    marginBottom: 16,
+    lineHeight: 24,
   },
   fieldGroup: {
-    gap: 20,
-    marginBottom: 32,
+    gap: 24,
+    marginBottom: 40,
   },
   input: {
     backgroundColor: "#FFFFFF",
   },
   label: {
-    color: "#374151",
-    marginBottom: 8,
-    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 12,
+    fontWeight: "medium",
+    fontSize: 15,
   },
   yearRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 12,
   },
   yearChip: {
     borderRadius: 999,
+    height: 44,
+    paddingHorizontal: 16,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   yearChipText: {
-    fontWeight: "600",
+    fontWeight: "medium",
+    fontSize: 15,
   },
   interestRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 12,
   },
   interestChip: {
     borderRadius: 999,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: "#F3F4F6",
+    height: 44,
+    paddingHorizontal: 16,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   interestChipText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#374151",
+    fontSize: 15,
+    fontWeight: "medium",
+    color: "#4B5563",
   },
   primaryButton: {
-    borderRadius: 12,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   primaryButtonContent: {
-    height: 52,
+    height: 56,
   },
   primaryButtonLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "bold",
+    letterSpacing: 0.5,
   },
   backRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 32,
+    paddingHorizontal: 24,
   },
   backLabel: {
-    color: "#374151",
-    marginLeft: 4,
+    color: "#4B5563",
+    marginLeft: 12,
+    fontWeight: "bold",
   },
   bottomSpacer: {
     opacity: 0,
   },
   backButton: {
-    alignSelf: "flex-start",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

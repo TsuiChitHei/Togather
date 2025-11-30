@@ -18,6 +18,7 @@ import {
 import { Event, AppContext, User } from "../context/AppContext";
 import { generateMatchDescription } from "../services/geminiService";
 import { findSimilarUsers } from "../api/user";
+import { theme } from "../src/theme"
 
 const MatchmakingCard = ({ event }: { event: Event }) => {
   const context = useContext(AppContext);
@@ -70,7 +71,7 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
       <Surface style={styles.matchCard} elevation={1}>
         <View style={styles.matchLoadingRow}>
           <ActivityIndicator color={theme.colors.primary} />
-          <Text variant="bodyMedium" style={styles.matchLoadingText}>
+          <Text variant="bodyLarge" style={styles.matchLoadingText}>
             Finding your match...
           </Text>
         </View>
@@ -87,20 +88,20 @@ const MatchmakingCard = ({ event }: { event: Event }) => {
       style={[styles.matchCard, styles.matchCardHighlight]}
       elevation={2}
     >
-      <Text variant="titleMedium" style={styles.matchTitle}>
-        Potential matching partners
+      <Text variant="titleLarge" style={styles.matchTitle}>
+        Potential Match
       </Text>
       <View style={styles.matchContent}>
         <Avatar.Image
           source={{ uri: match.avatarUrl }}
-          size={48}
+          size={56}
           style={styles.matchAvatar}
         />
         <View style={styles.matchDetails}>
-          <Text variant="titleSmall" style={styles.matchName}>
-            {match.name} Will also participate in this event.
+          <Text variant="titleMedium" style={styles.matchName}>
+            {match.name} is also attending
           </Text>
-          <Text variant="bodySmall" style={styles.matchDescription}>
+          <Text variant="bodyMedium" style={styles.matchDescription}>
             {description}
           </Text>
         </View>
@@ -153,7 +154,7 @@ export default function EventDetailScreen({
       </View>
 
       <View style={styles.body}>
-        <Text variant="headlineMedium" style={styles.eventTitle}>
+        <Text variant="displaySmall" style={styles.eventTitle}>
           {event.name}
         </Text>
 
@@ -180,12 +181,13 @@ export default function EventDetailScreen({
               ? styles.signupOutlinedLabel
               : styles.signupContainedLabel
           }
+          buttonColor={isSignedUp ? undefined : theme.colors.primary}
         >
-          {isSignedUp ? "Exit the activity" : "Sign up for"}
+          {isSignedUp ? "Leave Event" : "Join Event"}
         </Button>
 
         <Text variant="titleLarge" style={styles.sectionTitle}>
-          Activity Introduction
+          About This Event
         </Text>
         <Text variant="bodyMedium" style={styles.eventDescription}>
           {event.description}
@@ -193,7 +195,7 @@ export default function EventDetailScreen({
 
         <View style={styles.attendeeSection}>
           <Text variant="titleMedium" style={styles.attendeeTitle}>
-            {event.attendees.length} participants
+            {event.attendees.length} {event.attendees.length === 1 ? "Participant" : "Participants"}
           </Text>
 
           <View style={styles.attendeeAvatarRow}>
@@ -236,7 +238,7 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: "100%",
-    height: 224,
+    height: 280,
   },
   backButton: {
     position: "absolute",
@@ -244,58 +246,70 @@ const styles = StyleSheet.create({
     left: 16,
   },
   body: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingTop: 24,
   },
   eventTitle: {
-    color: "#111827",
-    marginBottom: 16,
+    color: "#0F172A",
+    marginBottom: 20,
     fontWeight: "700",
+    letterSpacing: -0.5,
   },
   metaCard: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   metaText: {
-    color: "#374151",
-    marginBottom: 8,
+    color: "#475569",
+    marginBottom: 12,
+    fontSize: 16,
+    lineHeight: 24,
   },
   metaLabel: {
     fontWeight: "600",
-    color: "#1F2937",
+    color: "#1E293B",
   },
   matchCard: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 20,
     marginBottom: 24,
     backgroundColor: "#FEF3C7",
+    borderWidth: 1,
+    borderColor: "#FDE68A",
   },
   matchCardHighlight: {
-    borderLeftWidth: 4,
+    borderLeftWidth: 5,
     borderLeftColor: "#F59E0B",
   },
   matchTitle: {
-    color: "#B45309",
+    color: "#92400E",
     fontWeight: "700",
+    marginBottom: 12,
+    fontSize: 18,
+    letterSpacing: -0.3,
   },
   matchContent: {
     flexDirection: "row",
-    marginTop: 12,
-    alignItems: "center",
+    marginTop: 4,
+    alignItems: "flex-start",
   },
   matchLoadingRow: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 8,
   },
   matchLoadingText: {
     marginLeft: 12,
     color: "#92400E",
+    fontWeight: "500",
   },
   matchAvatar: {
-    marginRight: 16,
+    marginRight: 14,
   },
   matchDetails: {
     flex: 1,
@@ -303,44 +317,62 @@ const styles = StyleSheet.create({
   matchName: {
     color: "#92400E",
     fontWeight: "600",
+    marginBottom: 6,
+    fontSize: 16,
   },
   matchDescription: {
     color: "#B45309",
-    marginTop: 4,
-    lineHeight: 18,
+    lineHeight: 20,
+    fontSize: 14,
   },
   signupButton: {
-    marginBottom: 24,
+    marginBottom: 28,
+    borderRadius: 12,
+    shadowColor: "#6366F1",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   signupButtonContent: {
-    height: 52,
+    height: 56,
+    paddingVertical: 4,
   },
   signupContainedLabel: {
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   signupOutlinedLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#374151",
+    color: "#475569",
+    letterSpacing: 0.5,
   },
   sectionTitle: {
-    color: "#111827",
-    marginBottom: 12,
-    fontWeight: "600",
+    color: "#0F172A",
+    marginBottom: 16,
+    fontWeight: "700",
+    fontSize: 20,
+    letterSpacing: -0.3,
   },
   eventDescription: {
-    color: "#4B5563",
-    lineHeight: 22,
+    color: "#475569",
+    lineHeight: 24,
+    fontSize: 16,
   },
   attendeeSection: {
     marginTop: 32,
   },
   attendeeTitle: {
-    color: "#111827",
+    color: "#0F172A",
     marginBottom: 16,
     fontWeight: "600",
+    fontSize: 18,
   },
   attendeeAvatarRow: {
     flexDirection: "row",
@@ -359,7 +391,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   attendeeMoreText: {
-    color: "#4B5563",
+    color: "#475569",
     fontWeight: "600",
     fontSize: 12,
   },
