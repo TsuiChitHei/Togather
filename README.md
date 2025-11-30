@@ -36,6 +36,7 @@ The backend is hosted in an online service called Render.com. But there might be
 > pip install -r requirements.txt
 9. Finally, start the server by running
 > uvicorn main:app --host 0.0.0.0 --port 8000
+10. A config file is needed for this. If not found in the backend folder, please contact us and we will send the config file. We are very sorry for the inconvenience.
 
 #Potential issues
 Ocassionally, when trying to start the app by scanning the QR code or pressing "a" in the terminal, you might be stuck in a loading screen, and the app will simply not run. Please try uninstalling and reinstalling Expo GO in this case. Or if on Android studio, temrinating the virtual device, wiping the data, running it again might work.
