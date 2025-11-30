@@ -1,6 +1,6 @@
 import { Community } from "../context/AppContext";
 
-const API_URL = "http://172.29.29.191:8000";
+const API_URL = "http://10.79.51.244:8000";
 
 export const getIndividualCommunityFromDatabase = async (
   communityId: string
