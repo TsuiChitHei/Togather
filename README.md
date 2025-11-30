@@ -37,4 +37,7 @@ The backend is hosted in an online service called Render.com. But there might be
 9. Finally, start the server by running
 > uvicorn main:app --host 0.0.0.0 --port 8000
 
+#Potential issues
+Ocassionally, when trying to start the app by scanning the QR code or pressing "a" in the terminal, you might be stuck in a loading screen, and the app will simply not run. Please try uninstalling and reinstalling Expo GO in this case. Or if on Android studio, temrinating the virtual device, wiping the data, running it again might work.
+
    
