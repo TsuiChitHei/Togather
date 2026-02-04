@@ -18,7 +18,7 @@
 4. For the location service to run properly, you need to turn on location on your phone. For the virtual device, you will have to manually set a location. Reference the following document with attached screenshots
 https://docs.google.com/document/d/1Nl6zBIEJ0efOY8To5ikc6ebh7fIGLHJ46I16ttUShr8/edit?usp=sharing
 
-#Backend and database servive
+#Backend and database service
 The backend is hosted in an online service called Render.com. But there might be occassions where the service unfortunately shutdown. This is usually indicated when you are unable to sign in using the default account "jane@test.com". A modal will appear, indicating "Invalid credentials". Or if the Discovery screen is completely empty, this is also an indicator that the hosting service is failing. In this case, you will need to set up the backend manually following the coming steps.
 
 1. In the terminal, using Git bash on windows ideally, run
